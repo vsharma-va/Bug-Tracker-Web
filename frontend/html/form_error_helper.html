@@ -1,0 +1,12 @@
+{% macro form_error_helper(field) %}
+  {% if field.errors %}
+    {% for error in field.errors %}
+      <div class="invalid-field">
+        {{ field(class="form-field-invalid") }}
+        <span class="error-text"> {{ error }} </span>
+      </div>
+    {% endfor %}
+  {% else %}
+    {{ field() }}
+  {% endif %}
+{% endmacro %}

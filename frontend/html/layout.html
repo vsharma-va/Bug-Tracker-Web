@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% if title %}
+  <title>BugMania - {{title}}</title>
+  {% else %}
+  <title>BugMania</title>
+  {% endif %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% block link_css %}
+  {% endblock link_css %}
+</head>
+
+<body>
+  {% block content %}
+  {% endblock content %}
+</body>
+  {% block link_js %}
+  {% endblock link_js %}
+</html>

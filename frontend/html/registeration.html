@@ -1,0 +1,17 @@
+{% extends "auth_layout.html" %}
+{% from "form_error_helper.html" import form_error_helper %}
+
+
+{% block extra_fields %}
+  <div class="auth-confirm-password">
+    {{ form_error_helper(form.confirm_password) }}
+  </div>
+  <div class="auth-submit">
+    {{ form.submit(class="submit-form") }}
+  </div>
+{% endblock extra_fields %}
+{% block afterform %}
+<div class="redirect-login">
+  <span>Already Registered ? <a href="{{ url_for('auth.login') }}">Log In</a></span>
+</div>
+{% endblock afterform %}

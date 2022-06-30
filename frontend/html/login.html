@@ -1,0 +1,12 @@
+{% extends "auth_layout.html" %}
+
+{% block extra_fields %}
+<div class="auth-remember">
+  <label class='remember'>
+    Remember Me {{ form.remember() }}
+  </label>
+</div>
+<div class="auth-submit">
+  {{ form.submit(class="submit-form") }}
+</div>
+{% endblock extra_fields %}

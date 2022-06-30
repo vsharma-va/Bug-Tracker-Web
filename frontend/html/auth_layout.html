@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% from 'form_error_helper.html' import form_error_helper %}
+
+{% block link_css %}
+<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/auth_style.css')}}">
+{% endblock link_css %}
+
+{% block content %}
+<div class="company-name">
+  <h1>BugsMania</h1>
+</div>
+<div class="Content">
+  <div class="container-auth">
+    <div class="auth-heading">
+      <h1>Welcome</h1>
+      <h2>All your bugs in one place</h2>
+    </div>
+    <form method="post" class="auth-form" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="auth-email">
+        <!-- <input type="email" name="email" placeholder="Email Id"> -->
+        {{ form_error_helper(form.email) }}
+      </div>
+      <div class="auth-password">
+        <!-- <input type="password" name="password" placeholder="Password"> -->
+        {{ form_error_helper(form.password) }}
+      </div>
+      {% block extra_fields %}
+      {% endblock extra_fields %}
+    </form>
+    {% block afterform %}
+    {% endblock afterform %} 
+  </div> 
+</div>
+{% endblock content%}
+{% block link_js %}
+<script type="text/javascript" src="{{ url_for('static', filename='javascript/auth.js') }}"></script>
+{% endblock link_js %}
