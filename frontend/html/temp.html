@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{{ url_for('static', filename='css/temp.css') }}" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.0/jquery-ui.min.js"></script>
+  </head>
+  <body>
+    <div class="content">
+    <div class="box1">
+      <p class="to_drag">hello there</p>
+    </div>
+    <div class="box2">
+      
+    </div>
+    </div>
+  </body>
+  <script>
+    // check out events for sortable 
+    // rough idea -> when sortable receives item, take all elements inside it and store it in repective columns
+    // if an item is removed remove from database as well
+    // figure out how to load html from database
+    $(document).ready(
+          function() {
+                $(".box1").sortable({connectWith:".box2"}); 
+                $(".box2").sortable({connectWith:".box1"});
+              });
+  </script>   
+</html>

@@ -1,0 +1,12 @@
+.content{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.box1{
+  border: 2px solid red;
+}
+
+.box2{
+  border: 2px solid red;
+}

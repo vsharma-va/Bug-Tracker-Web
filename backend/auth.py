@@ -78,6 +78,6 @@ def login_required(view):
 @bp.route("/home")
 @login_required
 def home():
-    return "<h1> welcome </h1>"
+    return render_template('temp.html')
 
 
