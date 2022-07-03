@@ -9,6 +9,7 @@ import db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
+
 @bp.route("/register", methods=['GET', 'POST'])
 def register():
     form = RegisterationForm(request.form)
@@ -18,15 +19,15 @@ def register():
         username = request.form['email']
         password = request.form['password']
         try:
-            print("Inserting user")
             cursor.execute(
-                    "INSERT INTO cUser (username, password) VALUES (%s, %s)",
-                    [username, generate_password_hash(password)],
-                    )
+                "INSERT INTO cUser (username, password) VALUES (%s, %s)",
+                [username, generate_password_hash(password)],
+            )
             return redirect(url_for("auth.home"))
         except:
             flash("Hello there you have encountered a bug")
     return render_template('registeration.html', title='Register', form=form)
+
 
 @bp.route("/login", methods=['GET', 'POST'])
 def login():
@@ -37,15 +38,15 @@ def login():
         username = request.form['email']
         password = request.form['password']
         cursor.execute(
-                "SELECT * FROM cUser where username = %s",
-                [username]
-                )
+            "SELECT * FROM cUser where username = %s",
+            [username]
+        )
         user = cursor.fetchone()
         if user != None:
             if check_password_hash(user[2], password):
                 session.clear()
                 session['user_id'] = user[0]
-                return redirect(url_for('auth.home'))
+                return redirect(url_for('dashboard.dash'))
             else:
                 flash("Wrong Password")
                 # form.password.errors =list(form.password.errors).append('Wrong Password')
@@ -55,6 +56,8 @@ def login():
     return render_template('login.html', title='Login', form=form)
 
 # runs before every view is loaded
+
+
 @bp.before_app_request
 def check_user_status():
     user_id = session.get('user_id')
@@ -66,18 +69,11 @@ def check_user_status():
         cursor.execute("SELECT * FROM cUser WHERE id = %s", [user_id])
         g.user = cursor.fetchone()
 
+
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        print(g.user)
         if g.user is None:
             return redirect(url_for('auth.login'))
         return view(**kwargs)
     return wrapped_view
-
-@bp.route("/home")
-@login_required
-def home():
-    return render_template('temp.html')
-
-

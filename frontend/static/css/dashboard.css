@@ -1,0 +1,108 @@
+@import url("https://cdn.jsdelivr.net/npm/@xz/fonts@1/serve/cascadia-code.min.css");
+
+html,
+body {
+  margin: 0px 10px 0px 10px;
+  height: 100%;
+}
+
+.content {
+  height: 100%;
+  width: 100%;
+}
+
+.project-container {
+  display: grid;
+  height: 40%;
+  width: 100%;
+  grid-template-rows: 0.75fr 1fr;
+  font-family: 'Cascadia Code', sans-serif;
+}
+
+.project-heading{
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  column-gap: 55px;
+}
+
+.name {
+  font-size: 25px;
+  justify-self: center;
+  align-self: center;
+}
+
+.filter-combo {
+  font-size: 25px;
+  justify-self: center;
+  align-self: start;
+}
+
+.card-container {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 21%;
+  column-gap: 30px;
+}
+
+.card {
+  height: 100%;
+  min-width: 75%;
+  width: max-content;
+  padding: 5px;
+  max-width: 100%;
+  padding-bottom: 2px;
+  border-radius: 10px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  font-size: 15px;
+  display: grid;
+  grid-template-columns: 1fr 0.05fr;
+  grid-template-rows: .25fr 1fr .15fr;
+  outline: 1px solid #FFE7C7;
+  -webkit-transition: outline .15s, transform .15s;
+  -moz-transition: outline .15s, transform .15s;
+  -ms-transition: outline .15s, transform .15s;
+  -o-transition: outline .15s, transform .15s;
+  transition: outline .15s, transform .15s;
+}
+
+.card:hover {
+  outline: 4px solid #FFE7C7;
+  transform: translate(-3px, -2px);
+  /* box-shadow: rgba(100, 100, 111, 0.2) 9px 10px 2px 0px; */
+}
+
+.column {
+  font-size: 20px;
+  margin-top: 0px;
+  padding: 9px;
+  border-radius: 8px;
+  justify-self: start;
+  align-self: start;
+}
+
+.tag {
+  font-size: 20px;
+  margin-top: 0px;
+  padding: 9px;
+  border-radius: 8px;
+  max-width: max-content;
+  box-shadow: rgba(100, 100, 111, 0.2) 9px 10px 2px 0px;
+  transform: translate(-6px, -5px);
+  justify-self: start;
+  align-self: start;
+}
+
+.description {
+  padding: 9px;
+  justify-self: center;
+  align-self: start;
+  grid-column: 1/-1;
+}
+
+.by {
+  margin-bottom: 0px;
+  justify-self: start;
+  align-self: center;
+  font-size: 12px;
+  grid-column: 1/-1;
+}
