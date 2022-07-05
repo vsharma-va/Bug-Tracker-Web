@@ -2,15 +2,32 @@ function comboChanged(element) {
     let idCombo = element.id;
     let comboValue = element.value;
     let idComboArray = idCombo.split(",");
+
+    let allCombos = document.getElementsByName("filters")
+    let allFilters = [];
+    let index = -1;
+    let counter = 0;
+    allCombos.forEach((e) => {
+        if (e.id === idCombo) {
+            allFilters.push(comboValue);
+            index = counter;
+        } else {
+            allFilters.push(e.value);
+        }
+        ++counter
+    })
+    // sent to (dashboard.py dash()) every time a combo box is changed
     var xml = new XMLHttpRequest();
     xml.open("POST", "/authorised/dash", true);
     xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     let dataToSend = JSON.stringify({
-        "type": `${comboValue}`,
-        "project_name": `${idComboArray[idComboArray.length - 1]}`
+        "type": `${allFilters}`,
+        "project_name": `${idComboArray[idComboArray.length - 1]}`,
+        "filter_index": `${index}`
     });
     xml.send(dataToSend)
 
+    // when state changes to ready the user is redirected to (dashboard.py filtered())
     xml.onreadystatechange = () => {
         if (xml.readyState == XMLHttpRequest.DONE) {
             if (xml.status == 200) {
@@ -27,23 +44,33 @@ function comboChanged(element) {
 };
 
 window.onload = () => {
+    /* 
+        whenever the dashboard.html loads comboLoaded() is called which gets the value of combos
+        from (dasboard.py (filter_type_fetch()))
+    */
     comboLoaded();
 }
 
 function comboLoaded() {
     var xml = new XMLHttpRequest();
     xml.onreadystatechange = () => {
-        if(xml.readyState == 4 && xml.status == 200){
+        if (xml.readyState == 4 && xml.status == 200) {
+            // refer to (dashboard.py (filter_type_fetch()) for return type details)
             let unclean = xml.responseText;
-            let cleanFilterName = unclean.split(",")[0].replace("[", "").replaceAll("\'", "").trim();
-            let cleanProjectName = unclean.split(",")[1].replace("]", "").replaceAll("\'", "").trim();
-            console.log(cleanFilterName);
-            console.log(cleanProjectName);
-            console.log(`fitlers,${cleanProjectName}`)
-            let combo = document.getElementById(`filters,${cleanProjectName}`)
-            combo.value = cleanFilterName;
+            let filterAndProject = unclean.split(":");
+            let filter = filterAndProject[0].replaceAll("\"", "").replaceAll("\'", "").replace("[", "").replace("]", "").split(",");
+            let projectName = filterAndProject[1].replaceAll("\"", "").trim();
+            console.log(filter);
+            console.log(projectName);
+            let allCombos = document.getElementsByName("filters");
+            if (filter.length != 0) {
+                for (let i = 0; i < allCombos.length; ++i) {
+                    console.log(filter[i].trim());
+                    allCombos[i].value = filter[i].trim();
+                }
+            }
         }
     }
-    xml.open("GET", "type/fetch", true);
+    xml.open("GET", "/authorised/filtered/type/fetch", true);
     xml.send(null);
 }

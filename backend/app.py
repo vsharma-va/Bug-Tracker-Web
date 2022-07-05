@@ -26,4 +26,4 @@ app.register_blueprint(auth.bp)
 app.register_blueprint(dashboard.bp)
 
 if __name__ == '__main__':
-    app.run(debug=True, threaded=True, extra_files=extra_files)
+    app.run(threaded=True, extra_files=extra_files)
