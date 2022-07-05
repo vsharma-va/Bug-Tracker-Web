@@ -1,7 +1,7 @@
 # Queries to create tables used ->
 
 1. ## cUser table
-    ```postgresql
+    ```sql
     CREATE TABLE IF NOT EXISTS public.cuser
     (
         id integer NOT NULL DEFAULT nextval('cuser_id_seq'::regclass),
@@ -17,7 +17,7 @@
     OWNER to postgres;
     ```
 1. ## projectUserInfo
-   ```postgresql
+   ```sql
     CREATE TABLE IF NOT EXISTS public.projectuserinfo
     (
         id integer NOT NULL DEFAULT nextval('projectuserinfo_id_seq'::regclass),
@@ -33,7 +33,7 @@
     OWNER to postgres;
    ```
 1. ## userHierarchyProjects
-   ```postgresql
+   ```sql
     CREATE TABLE IF NOT EXISTS public.userhierarchyprojects
     (
         id integer NOT NULL DEFAULT nextval('userhierarchyprojects_id_seq'::regclass),
@@ -52,25 +52,25 @@
         OWNER to postgres;
    ```
 
-1. ## projectData
-   ```postgresql
+1. ## projectData (Updated)
+   ```sql
     CREATE TABLE IF NOT EXISTS public.projectdata
     (
         id integer NOT NULL DEFAULT nextval('projectdata_id_seq'::regclass),
         project_id integer NOT NULL,
         tag text COLLATE pg_catalog."default" NOT NULL,
         tag_color text COLLATE pg_catalog."default" NOT NULL,
-        by_user text COLLATE pg_catalog."default" NOT NULL,
         column_name text COLLATE pg_catalog."default" NOT NULL,
         description text COLLATE pg_catalog."default" NOT NULL,
-        asigned_to integer,
+        by_user integer,
+        assigned_to integer,
         CONSTRAINT projectdata_pkey PRIMARY KEY (id),
-        CONSTRAINT asigned_to_fk FOREIGN KEY (asigned_to)
+        CONSTRAINT assigned_to FOREIGN KEY (assigned_to)
             REFERENCES public.cuser (id) MATCH SIMPLE
             ON UPDATE NO ACTION
             ON DELETE NO ACTION,
-        CONSTRAINT projectdata_by_user_fkey FOREIGN KEY (by_user)
-            REFERENCES public.cuser (username) MATCH SIMPLE
+        CONSTRAINT by_user_fk FOREIGN KEY (by_user)
+            REFERENCES public.cuser (id) MATCH SIMPLE
             ON UPDATE NO ACTION
             ON DELETE NO ACTION,
         CONSTRAINT projectdata_project_id_fkey FOREIGN KEY (project_id)
@@ -83,4 +83,4 @@
 
     ALTER TABLE IF EXISTS public.projectdata
         OWNER to postgres;
-   ```
+    ```
