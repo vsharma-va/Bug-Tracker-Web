@@ -15,6 +15,16 @@ def get_db():
         g.db.autocommit = True
     return g.db
 
+def get_user_name_from_user_id(user_id: int, conn=None):
+    if conn == None:
+        connection = get_db()
+        cursor = connection.cursor()
+    else:
+        conn.cursor()
+        
+    cursor.execute("SELECT username FROM cUser WHERE id = %s", [user_id])
+    username = cursor.fetchone()
+    return username[0]
 
 def close_db(e=None):
     db = g.pop('db', None)  # None if db doesn't exist

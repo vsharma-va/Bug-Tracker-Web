@@ -1,3 +1,6 @@
+from cgitb import html
+
+
 class DashHelper():
     def __init__(self, db):
         self.db = db
@@ -30,7 +33,7 @@ class DashHelper():
                             cursor.execute(
                                 "SELECT * FROM projectData where project_id = %s", [project_and_user_role['project_id']])
                         elif filters[idx] == "assigned-to-me":
-                            cursor.execute("SELECT * FROM projectData where project_id = %s and asigned_to = %s", [
+                            cursor.execute("SELECT * FROM projectData where project_id = %s and assigned_to = %s", [
                                            project_and_user_role['project_id'], user_id])
                         else:
                             cursor.execute(
@@ -44,4 +47,5 @@ class DashHelper():
                         else:
                             tmp_list.append('')
                             html_details[project_and_user_role['project_name']] = tmp_list
+        print(html_details)
         return html_details
