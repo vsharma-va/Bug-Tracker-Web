@@ -1,0 +1,5 @@
+change description to short description in database
+add word limit to short description
+
+clicking on items in main on website opens an overlay showing all the details of the ticket -
+    tag, status, description, steps to reproduce, expected behaviour, assigned to

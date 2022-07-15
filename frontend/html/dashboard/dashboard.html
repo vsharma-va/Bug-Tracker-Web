@@ -18,15 +18,18 @@
                 </select>
             </div>
         </div>
-        <div class="card-container">
+        <div class="card-container" id="card-container,{{ i }}">
             {% for z in value[i] %}
             <div class='card'>
                 <p class='tag' style='color: {{ z[3] }}'>{{z[2]}}</p>
                 <p class='column'>{{ z[4] }}</p>
                 <p class='description'>{{ z[5] }}</p>
-                <p class='by'>{{ z[6] }}</p>
+                <p class='by'>{{ z[6] }} -> {{ z[7] }}</p>
             </div>
             {% endfor %}
+        </div>
+        <div class="view-all,{{ i }}">
+            <button type="button" class="view-all,{{ i }}" id="view-all-btn" onclick="viewAllClicked(this)">View All</button>
         </div>
     </div>
     {% endfor %}

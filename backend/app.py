@@ -1,5 +1,6 @@
 import dashboard
 import auth
+import project
 import db
 from flask import Flask
 import os
@@ -24,6 +25,7 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 db.init_app(app)
 app.register_blueprint(auth.bp)
 app.register_blueprint(dashboard.bp)
+app.register_blueprint(project.bp)
 
 if __name__ == '__main__':
-    app.run(threaded=True, extra_files=extra_files)
+    app.run(debug=True, threaded=True, extra_files=extra_files)

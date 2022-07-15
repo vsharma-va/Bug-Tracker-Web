@@ -74,3 +74,74 @@ function comboLoaded() {
     xml.open("GET", "/authorised/filtered/type/fetch", true);
     xml.send(null);
 }
+
+function viewAllClicked(element) {
+    let classNameElement = element.className;
+    let projectName = classNameElement.split(",")[1].replaceAll("\"", "").replaceAll("\'", "").trim()
+}
+
+// function test() {
+//     var xml = new XMLHttpRequest();
+//     let allCombos = document.getElementsByName("filters")
+//     let allFilters = [];
+//     allCombos.forEach((e) => {
+//         allFilters.push(e.value)
+//     })
+
+//     var xml = new XMLHttpRequest();
+//     xml.open("POST", "/authorised/dash/update", true)
+//     xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+//     let dataToSend = JSON.stringify({
+//         "type": `${allFilters}`,
+//     });
+
+//     xml.onreadystatechange = () => {
+//         if (xml.readyState == 4 && xml.status == 200) {
+//             let cardHtml = JSON.parse(xml.responseText);
+//             let allProjects = document.getElementsByClassName("project-name")
+//             Array.from(allProjects).forEach((element) => {
+//                 console.log(cardHtml[element.innerText]);
+//                 let insertAt = document.getElementById(`card-container,${element.innerText}`);
+//                 let totalValue = "";
+//                 Array.from(cardHtml[element.innerText]).forEach((value) => {
+//                     totalValue += value
+//                 });
+//                 insertAt.innerHTML = totalValue;
+//             });
+//         }
+//     }
+//     xml.send(dataToSend)
+
+// }
+
+setInterval(() => {
+    var xml = new XMLHttpRequest();
+    let allCombos = document.getElementsByName("filters")
+    let allFilters = [];
+    allCombos.forEach((e) => {
+        allFilters.push(e.value)
+    })
+
+    var xml = new XMLHttpRequest();
+    xml.open("POST", "/authorised/dash/update", true)
+    xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    let dataToSend = JSON.stringify({
+        "type": `${allFilters}`,
+    });
+
+    xml.onreadystatechange = () => {
+        if (xml.readyState == 4 && xml.status == 200) {
+            let cardHtml = JSON.parse(xml.responseText);
+            let allProjects = document.getElementsByClassName("project-name")
+            Array.from(allProjects).forEach((element) => {
+                let insertAt = document.getElementById(`card-container,${element.innerText}`);
+                let totalValue = "";
+                Array.from(cardHtml[element.innerText]).forEach((value) => {
+                    totalValue += value
+                });
+                insertAt.innerHTML = totalValue;
+            });
+        }
+    }
+    xml.send(dataToSend)
+}, 40000)
