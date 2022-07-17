@@ -17,7 +17,7 @@ function comboChanged(element) {
         ++counter
     })
     // sent to (dashboard.py dash()) every time a combo box is changed
-    var xml = new XMLHttpRequest();
+    let xml = new XMLHttpRequest();
     xml.open("POST", "/authorised/dash", true);
     xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     let dataToSend = JSON.stringify({
@@ -52,7 +52,7 @@ window.onload = () => {
 }
 
 function comboLoaded() {
-    var xml = new XMLHttpRequest();
+    let xml = new XMLHttpRequest();
     xml.onreadystatechange = () => {
         if (xml.readyState == 4 && xml.status == 200) {
             // refer to (dashboard.py (filter_type_fetch()) for return type details)

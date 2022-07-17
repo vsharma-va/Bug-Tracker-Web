@@ -39,7 +39,7 @@ def dash():
         helper = CrudHelper(db.get_db())
         user_id = session['user_id']
         html_details = helper.get_all_project_cards_by_id_with_filter("all", user_id)
-        user_sub_details = CrudHelper.order_dict_and_sub_username(
+        user_sub_details = helper.order_and_sub_username(
             html_details, False)
         return render_template('dashboard/dashboard.html', dict_keys=list(user_sub_details.keys()), value=user_sub_details)
 
@@ -53,9 +53,10 @@ def dash():
 @login_required
 def filtered(filter_type):
     html_details = session['html_details']
+    helper = CrudHelper(db.get_db)
     # since json serialization messes up with order of the dictionary an index has been added to every key
     # (refer to dash() function in this file for details)
-    ordered_html_dict = CrudHelper.order_dict_and_sub_username(html_details)
+    ordered_html_dict = helper.order_and_sub_username(html_details)
     return render_template('dashboard/dashboard.html', dict_keys=list(ordered_html_dict.keys()), value=ordered_html_dict)
 
 
@@ -68,7 +69,10 @@ def filtered(filter_type):
 @bp.route('/filtered/type/fetch', methods=['GET', 'POST'])
 @login_required
 def filter_type_fetch():
-    details = session['details_for_filter']
+    try:
+        details = session['details_for_filter']
+    except KeyError:
+        return ":"
     return f"{details['filter_type']}:"
 
 @bp.route('/dash/update', methods=['GET', 'POST'])
@@ -82,7 +86,7 @@ def dash_update():
         user_id = session['user_id']
         html_details = helper.get_all_project_cards_by_id_with_filter(
             filter_list, user_id)
-        html_details = CrudHelper.order_dict_and_sub_username(html_details, False)
+        html_details = helper.order_and_sub_username(html_details, False)
         card_dict = {}
         template_list = []
         for key in html_details.keys():

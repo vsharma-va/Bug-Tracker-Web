@@ -4,6 +4,7 @@ html,
 body {
   margin: 0px 10px 0px 10px;
   height: 100%;
+  font-family: 'Cascadia Code', sans-serif;
 }
 
 .content {
@@ -16,7 +17,6 @@ body {
   height: 50%;
   width: 100%;
   grid-template-rows: 0.5fr 1fr;
-  font-family: 'Cascadia Code', sans-serif;
 }
 
 .project-heading{
@@ -131,6 +131,7 @@ div[class^="view-all,"]{
   transition: box-shadow .2s, transform .2s;
   box-sizing: border-box;
   line-height: 50px;
+  font-family: 'Cascadia Code', sans-serif;
 }
 
 #view-all-btn:hover{

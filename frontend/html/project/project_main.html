@@ -28,17 +28,17 @@
         </div>
         <div id="in-progress" class="sortable">
             {% for value in data['in-progress'] %}
-                {{ card_helper(value, "open", loop.index) }}
+                {{ card_helper(value, "in-progress", loop.index) }}
             {% endfor %}
         </div>
         <div id="to-be-tested" class="sortable">
             {% for value in data['to-be-tested'] %}
-                {{ card_helper(value, "open", loop.index) }}
+                {{ card_helper(value, "to-be-tested", loop.index) }}
             {% endfor %}
         </div>
         <div id="closed" class="sortable">
             {% for value in data['closed'] %}
-                {{ card_helper(value, "open", loop.index) }}
+                {{ card_helper(value, "close", loop.index) }}
             {% endfor %}
         </div>
     </div>

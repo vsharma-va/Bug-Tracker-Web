@@ -1,10 +1,11 @@
 import db
 from enum import Enum
+from flask import redirect, url_for
 
 class Status(Enum):
     OPEN = 'open'
-    IN_PROGRESS = 'in_progress'
-    TO_BE_TESTED = 'to_be_tested'
+    IN_PROGRESS = 'in-progress'
+    TO_BE_TESTED = 'to-be-tested'
     CLOSED = 'closed'
     NONE = None
 
@@ -27,7 +28,7 @@ class CrudHelper():
                 for idx, project in enumerate(user_projects):
                     # userHierarchyProjects table contains user permissions for all the projects they are a part of
                     cursor.execute(
-                        "SELECT status FROM userHierarchyProjects WHERE project_id = %s", [project[0]])
+                        "SELECT status FROM userHierarchyProjects WHERE user_id = %s", [user_id])
                     user_role = cursor.fetchone()
                     if user_role is not None:
                         # iterates over every project to find data wrt filters
@@ -65,12 +66,44 @@ class CrudHelper():
             project_id = project[0] # project[0] = id, project[1] = project_name, project[2] = users
             if status != Status.NONE:
                 status_value = status.value
-                cursor.execute("SELECT * FROM projectData WHERE project_id = %s AND column_name = %s", [project_id, status_value])
+                cursor.execute("SELECT * FROM projectData WHERE project_id = %s AND column_name = %s ORDER BY col_pos", [project_id, status_value])
                 return cursor.fetchall()
             else:
                 cursor.execute("SELECT * FROM projectData WHERE project_id = %s", [project_id])
                 return cursor.fetchall()
-                
+
+    def update_data_and_reorder(self, order_dict: dict, update_card_data: dict, project_name: str):
+        cursor = self.db.cursor()
+        cursor.execute("SELECT id FROM projectUserInfo WHERE project_name = %s", [project_name])
+        project_id = cursor.fetchone()[0]
+        for key in order_dict.keys():    
+            if key == 'add':
+                by_user = update_card_data['by'].split('->')[0].strip()
+                assigned_to = update_card_data['by'].split('->')[1].strip()
+                by_user_id = self.get_user_id_from_user_name(by_user)
+                assigned_to_id = self.get_user_id_from_user_name(assigned_to)
+                cursor.execute("INSERT INTO projectData (project_id, tag, tag_color, column_name, description, by_user, assigned_to, col_pos) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", [project_id, update_card_data['tag'], update_card_data['tag_color'], update_card_data['column'], update_card_data['description'], by_user_id, assigned_to_id, order_dict[key]])
+            elif key == 'remove':
+                # column empty condition
+                if order_dict[key] == 'all':
+                    cursor.execute("DELETE FROM projectData WHERE column_name = %s AND project_id = %s", [update_card_data['column'], project_id])
+                else:
+                    cursor.execute("DELETE FROM projectData WHERE col_pos = %s AND project_id = %s AND column_name = %s", [order_dict[key], project_id, update_card_data['column']])
+            else:
+                cursor.execute("UPDATE projectData SET col_pos = %s WHERE col_pos = %s AND column_name = %s ", [order_dict[key], key, update_card_data['column']])
+    
+    def get_user_name_from_user_id(self, user_id: int): 
+        cursor = self.db.cursor()
+        cursor.execute("SELECT username FROM cUser WHERE id = %s", [user_id])
+        username = cursor.fetchone()
+        return username[0]
+    
+    def get_user_id_from_user_name(self, user_name: str):
+        cursor = self.db.cursor()
+        cursor.execute("SELECT id FROM cUser WHERE username = %s", [user_name])
+        user_id = cursor.fetchone()
+        return user_id[0]
+    
     @staticmethod
     def serialize_dict(html_details: dict) -> dict:
         for idx, key in enumerate(html_details.copy().keys()):
@@ -78,8 +111,7 @@ class CrudHelper():
             html_details[new_key] = html_details.pop(key)
         return html_details
 
-    @staticmethod
-    def order_and_sub_username(html_details: dict, remove_serial=True) -> dict:
+    def order_and_sub_username(self, html_details: dict, remove_serial=True) -> dict:
         if remove_serial:
             order_list = [None] * len(html_details.keys())
             for key in list(html_details.keys()):
@@ -98,9 +130,9 @@ class CrudHelper():
                     tup_list = list(tup)
                     if len(tup_list) != 0:
                         if tup_list[6] != None and tup_list[7] != None:
-                            tup_list[6] = db.get_user_name_from_user_id(
+                            tup_list[6] = self.get_user_name_from_user_id(
                                 int(tup[6]))
-                            tup_list[7] = db.get_user_name_from_user_id(
+                            tup_list[7] = self.get_user_name_from_user_id(
                                 int(tup[7]))
                     updated_value.append(tup_list)
             ordered_html_dict[key] = updated_value
