@@ -57,7 +57,7 @@ class CrudHelper():
                             html_details[project_and_user_role['project_name']] = tmp_list
         return html_details
 
-    def get_project_cards_by_project_name(self, project_name: str, status: Status = Status.NONE):
+    def get_project_cards_by_project_name(self, project_name: str, status: Status = Status.NONE) -> tuple:
         cursor = self.db.cursor()
         cursor.execute(
             "SELECT * FROM projectUserInfo WHERE project_name = %s ;", [project_name])
@@ -76,7 +76,8 @@ class CrudHelper():
         cursor = self.db.cursor()
         cursor.execute("SELECT id FROM projectUserInfo WHERE project_name = %s", [project_name])
         project_id = cursor.fetchone()[0]
-        for key in order_dict.keys():    
+        for key in order_dict.keys():
+            # go to project.py to understand why key == 'add' or 'remove' is used
             if key == 'add':
                 by_user = update_card_data['by'].split('->')[0].strip()
                 assigned_to = update_card_data['by'].split('->')[1].strip()

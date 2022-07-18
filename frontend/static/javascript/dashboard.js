@@ -115,14 +115,13 @@ function viewAllClicked(element) {
 // }
 
 setInterval(() => {
-    var xml = new XMLHttpRequest();
+    let xml = new XMLHttpRequest();
     let allCombos = document.getElementsByName("filters")
     let allFilters = [];
     allCombos.forEach((e) => {
         allFilters.push(e.value)
     })
 
-    var xml = new XMLHttpRequest();
     xml.open("POST", "/authorised/dash/update", true)
     xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     let dataToSend = JSON.stringify({

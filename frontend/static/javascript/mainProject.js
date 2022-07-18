@@ -1,28 +1,38 @@
-let open;
+// Global Variables
+let opn;
 let inProgress;
 let toBeTested;
-let closed;
+let clos;
 
 let openOriginalOrder;
 let inProgressOriginalOrder;
 let toBeTestedOriginalOrder;
 let closedOriginalOrder;
 
+// defining all sortables
 $(document).ready(function () {
-    open = $("#open").sortable({
+    /*
+        receive fires when the item is dropped into the sortable
+        remove fires when the item is dropped into another sortable
+        remove event takes place before receive
+        start fires when the item is dragged
+    */
+    opn = $("#open").sortable({
         connectWith: ".sortable",
         containment: ".columns",
         cursor: "move",
         receive: onReceiveRemove,
         remove: onReceiveRemove,
+        start: updateOriginalOrders,
     }).disableSelection();
-    
+
     inProgress = $("#in-progress").sortable({
         connectWith: ".sortable",
         containment: ".columns",
         cursor: "move",
         receive: onReceiveRemove,
         remove: onReceiveRemove,
+        start: updateOriginalOrders,
     }).disableSelection();
 
     toBeTested = $("#to-be-tested").sortable({
@@ -31,14 +41,16 @@ $(document).ready(function () {
         cursor: "move",
         receive: onReceiveRemove,
         remove: onReceiveRemove,
+        start: updateOriginalOrders,
     }).disableSelection();
 
-    closed = $("#closed").sortable({
+    clos = $("#closed").sortable({
         connectWith: ".sortable",
         containment: ".columns",
         cursor: "move",
         receive: onReceiveRemove,
         remove: onReceiveRemove,
+        start: updateOriginalOrders,
     }).disableSelection();
 
     updateOriginalOrders();
@@ -54,7 +66,8 @@ $(document).ready(function () {
     get item. get project id.
     send to flask. remove from projectData where project_id = json
 */
-function onReceiveRemove(event, ui){
+function onReceiveRemove(event, ui) {
+    let columnName = event.target.id.toString();
     // you can find out about all the properties by printing ui.item to the console
     let allChildren = ui.item['0'].children;
     // console.log(allChildren);
@@ -62,13 +75,12 @@ function onReceiveRemove(event, ui){
     // console.log(allChildren.tag.textContent);
     // console.log(allChildren.tag.style.cssText.split(":")[1].replaceAll(";", "").trim());
 
-    let columnName = event.target.id.toString();
     console.log(columnName);
     let sorted = $(`#${columnName}`).sortable("serialize");
     let originalOrder;
     let eventType;
-    
-    switch (event.type){
+
+    switch (event.type) {
         case "sortremove":
             eventType = "remove";
             break;
@@ -77,7 +89,7 @@ function onReceiveRemove(event, ui){
             break;
     }
 
-    switch (columnName){
+    switch (columnName) {
         case "open":
             originalOrder = openOriginalOrder;
             break;
@@ -91,12 +103,15 @@ function onReceiveRemove(event, ui){
             originalOrder = closedOriginalOrder;
             break;
     }
-    console.log(originalOrder);
-    console.log(sorted);
 
+    console.log(`${originalOrder} -> ${eventType}`);
+    console.log(`${sorted} -> ${eventType}`);
+
+    // post request. Used to update the database.
     let xml = new XMLHttpRequest();
     xml.open("POST", window.location.href + `/on/${eventType}`, true);
     xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    // new_order and original_order are the results of sortable("serialize")
     let dataToSend = JSON.stringify({
         "tag": allChildren.tag.textContent,
         "tag_color": allChildren.tag.style.cssText.split(":")[1].replaceAll(";", "").trim(),
@@ -108,23 +123,53 @@ function onReceiveRemove(event, ui){
         "original_order": originalOrder,
         "event_type": eventType,
     });
-    updateOriginalOrders(columnName);
     xml.send(dataToSend);
     /*
         plans to fix drag and drop wrt database
         return some value from flask function when the database is updated
         Then update the page by using ajax so that html ids are correct and wrong elements are not added or deleted
     */
+    // updatePage is used to update the ids of the divs so that wrong elements are not removed or added
+    xml.onreadystatechange = () => {
+        if (xml.readyState == 4 && xml.status == 200) {
+            if (xml.responseText === "receive") {
+                updatePage();
+            }
+        }
+    }
+
 }
 
-function cardClicked(){
-    console.log("clicked");
+function updatePage() {
+    let xml = new XMLHttpRequest();
+    xml.open("GET", `${window.location.href}/update`, true);
+    xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+    xml.onreadystatechange = () => {
+        if (xml.readyState == 4 && xml.status == 200) {
+            // cardHtml is a dictionary sent from flask {'column_name': datainlist}
+            let cardHtml = JSON.parse(xml.responseText);
+            let allColumns = document.getElementsByClassName("sortable ui-sortable");
+            Array.from(allColumns).forEach((element) => {
+                let totalValue = "";
+                cardHtml[element.id].forEach((value) => {
+                    totalValue += value;
+                });
+                element.innerHTML = totalValue;
+            });
+        }
+    }
+
+    xml.send(null);
 }
 
-function updateOriginalOrders(columnName){
-    switch (columnName){
+function cardClicked() {
+}
+
+function updateOriginalOrders(columnName) {
+    switch (columnName) {
         case "open":
-            openOriginalOrder = open.sortable("serialize");
+            openOriginalOrder = opn.sortable("serialize");
             break;
         case "in-progress":
             inProgressOriginalOrder = inProgress.sortable("serialize");
@@ -133,12 +178,14 @@ function updateOriginalOrders(columnName){
             toBeTestedOriginalOrder = toBeTested.sortable("serialize");
             break;
         case "closed":
-            closedOriginalOrder = closed.sortable("serialize");
+            closedOriginalOrder = clos.sortable("serialize");
             break;
         default:
-            openOriginalOrder = open.sortable("serialize");
+            openOriginalOrder = opn.sortable("serialize");
             inProgressOriginalOrder = inProgress.sortable("serialize");
             toBeTestedOriginalOrder = toBeTested.sortable("serialize");
-            closedOriginalOrder = closed.sortable("serialize");
+            closedOriginalOrder = clos.sortable("serialize");
     }
 }
+
+setInterval(updatePage, 40000);

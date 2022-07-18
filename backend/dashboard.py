@@ -15,6 +15,11 @@ bp = Blueprint('dashboard', __name__, url_prefix='/authorised')
 @bp.route('/dash', methods=["GET", "POST"])
 @login_required
 def dash():
+    """Loads all the data from database and renders template for the /dash route
+
+    Returns:
+        str: it returns a string if request.method is post which is used by javascript to redirect, or html
+    """
     html_details = {}
     '''
         if this route is called through post that means value of one of the combo boxes has changed.
@@ -53,7 +58,7 @@ def dash():
 @login_required
 def filtered(filter_type):
     html_details = session['html_details']
-    helper = CrudHelper(db.get_db)
+    helper = CrudHelper(db.get_db())
     # since json serialization messes up with order of the dictionary an index has been added to every key
     # (refer to dash() function in this file for details)
     ordered_html_dict = helper.order_and_sub_username(html_details)

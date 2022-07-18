@@ -1,4 +1,4 @@
-{% macro card_helper(value, column_name, idx) %}
+{% macro card_macro(value, column_name, idx) %}
     <div class="card" onclick="cardClicked()" id="{{ column_name }}_{{ idx }}">
         <p id="tag" style="color: {{ value[3] }}">{{ value[2] }}</p>
         <p id="column">{{ value[4] }}</p>

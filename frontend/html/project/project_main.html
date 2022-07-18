@@ -1,5 +1,5 @@
 {% extends 'layout.html' %}
-{% from 'helper/card_helper.html' import card_helper %}
+{% from 'helper/card_macro.html' import card_macro %}
 
 {% block link_css %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/project.css') }}">
@@ -23,22 +23,22 @@
     <div class="columns">
         <div id="open" class="sortable">
             {% for value in data['open'] %}
-                {{ card_helper(value, "open", loop.index) }}
+                {{ card_macro(value, "open", loop.index) }}
             {% endfor %}
         </div>
         <div id="in-progress" class="sortable">
             {% for value in data['in-progress'] %}
-                {{ card_helper(value, "in-progress", loop.index) }}
+                {{ card_macro(value, "in-progress", loop.index) }}
             {% endfor %}
         </div>
         <div id="to-be-tested" class="sortable">
             {% for value in data['to-be-tested'] %}
-                {{ card_helper(value, "to-be-tested", loop.index) }}
+                {{ card_macro(value, "to-be-tested", loop.index) }}
             {% endfor %}
         </div>
         <div id="closed" class="sortable">
             {% for value in data['closed'] %}
-                {{ card_helper(value, "close", loop.index) }}
+                {{ card_macro(value, "close", loop.index) }}
             {% endfor %}
         </div>
     </div>
