@@ -1,9 +1,20 @@
-function comboChanged(element) {
-    let idCombo = element.id;
-    let comboValue = element.value;
+import { Helper } from "./helper/allHelpers.js";
+
+let allCombos = document.getElementsByName("filters");
+Array.from(allCombos).forEach((element) => {
+    element.addEventListener("change", comboChanged);
+})
+
+let allViewAllBtns = document.querySelectorAll('[class^="view-all,"]');
+Array.from(allViewAllBtns).forEach((element) => {
+    element.addEventListener("click", viewAllClicked);
+})
+
+function comboChanged(event) {
+    let idCombo = event.target.id;
+    let comboValue = event.target.value;
     let idComboArray = idCombo.split(",");
 
-    let allCombos = document.getElementsByName("filters")
     let allFilters = [];
     let index = -1;
     let counter = 0;
@@ -18,17 +29,15 @@ function comboChanged(element) {
     })
     // sent to (dashboard.py dash()) every time a combo box is changed
     let xml = new XMLHttpRequest();
-    xml.open("POST", "/authorised/dash", true);
-    xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     let dataToSend = JSON.stringify({
         "type": `${allFilters}`,
         "project_name": `${idComboArray[idComboArray.length - 1]}`,
         "filter_index": `${index}`
     });
-    xml.send(dataToSend)
 
     // when state changes to ready the user is redirected to (dashboard.py filtered())
-    xml.onreadystatechange = () => {
+
+    let onReadyFunc = () => {
         if (xml.readyState == XMLHttpRequest.DONE) {
             if (xml.status == 200) {
                 alert(xml.responseText);
@@ -40,8 +49,16 @@ function comboChanged(element) {
         } else {
             console.log(`error -> ${xml.readyState}`)
         }
-    };
+    }
+    Helper.httpRequest(xml, "POST", "/authorised/dash", onReadyFunc, dataToSend);
 };
+
+function viewAllClicked(event) {
+    let classNameElement = event.target.className;
+    let projectName = classNameElement.split(",")[1].replaceAll("\"", "").replaceAll("\'", "").trim();
+    let newUrl = window.location.href + `/main/${projectName}`;
+    window.location.href = newUrl;
+}
 
 window.onload = () => {
     /* 
@@ -53,17 +70,16 @@ window.onload = () => {
 
 function comboLoaded() {
     let xml = new XMLHttpRequest();
-    xml.onreadystatechange = () => {
+
+    var onReadyFunc = () => {
         if (xml.readyState == 4 && xml.status == 200) {
             // refer to (dashboard.py (filter_type_fetch()) for return type details)
             let unclean = xml.responseText;
             let filterAndProject = unclean.split(":");
             let filter = filterAndProject[0].replaceAll("\"", "").replaceAll("\'", "").replace("[", "").replace("]", "").split(",");
             let projectName = filterAndProject[1].replaceAll("\"", "").trim();
-            console.log(filter);
-            console.log(projectName);
             let allCombos = document.getElementsByName("filters");
-            if (filter.length != 0) {
+            if (filter[0].length != 0) {
                 for (let i = 0; i < allCombos.length; ++i) {
                     console.log(filter[i].trim());
                     allCombos[i].value = filter[i].trim();
@@ -71,14 +87,10 @@ function comboLoaded() {
             }
         }
     }
-    xml.open("GET", "/authorised/filtered/type/fetch", true);
-    xml.send(null);
+    Helper.httpRequest(xml, "GET", "/authorised/filtered/type/fetch", onReadyFunc, null)
 }
 
-function viewAllClicked(element) {
-    let classNameElement = element.className;
-    let projectName = classNameElement.split(",")[1].replaceAll("\"", "").replaceAll("\'", "").trim()
-}
+
 
 // function test() {
 //     var xml = new XMLHttpRequest();
@@ -121,14 +133,11 @@ setInterval(() => {
     allCombos.forEach((e) => {
         allFilters.push(e.value)
     })
-
-    xml.open("POST", "/authorised/dash/update", true)
-    xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     let dataToSend = JSON.stringify({
         "type": `${allFilters}`,
     });
 
-    xml.onreadystatechange = () => {
+    let onReadyFunc = () => {
         if (xml.readyState == 4 && xml.status == 200) {
             let cardHtml = JSON.parse(xml.responseText);
             let allProjects = document.getElementsByClassName("project-name")
@@ -142,5 +151,5 @@ setInterval(() => {
             });
         }
     }
-    xml.send(dataToSend)
+    Helper.httpRequest(xml, "POST", "/authorised/dash/update", onReadyFunc, dataToSend);
 }, 40000)

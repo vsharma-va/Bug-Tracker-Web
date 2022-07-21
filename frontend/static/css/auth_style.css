@@ -1,5 +1,13 @@
 @import url("https://cdn.jsdelivr.net/npm/@xz/fonts@1/serve/cascadia-code.min.css");
 
+:root {
+  --main-background-colour: #FEFBF6;
+  --column-background-colour: #3D3C42;
+  --text-colour: #FEFBF6;
+  --shadow-colour: #252422;
+  --card-hover-colour: #ffe7c7;
+}
+
 body{
   font-family: 'Cascadia Code', sans-serif;
 }
@@ -22,6 +30,8 @@ h2{
 }
 
 .container-auth{
+  background-color: var(--column-background-colour);
+  color: var(--text-colour);
   height: 65%;
   width: 20%;
   margin: auto;
@@ -33,7 +43,7 @@ h2{
   padding-left: 40px;
   padding-right: 40px;
   display: grid;
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  box-shadow: var(--shadow-colour) 0px 7px 29px 0px;
   grid-template-rows: auto auto 0.1fr;
 }
 
@@ -56,6 +66,8 @@ input{
   margin: 0px;
   font-size: 15px;
   font-family: 'Cascadia Code', sans-serif;
+  background-color: var(--column-background-colour);
+  color: var(--text-colour);
 }
 
 input{
@@ -91,6 +103,7 @@ input:focus{
 }
 
 .auth-submit{
+  background-color: var(--column-background-colour);
   justify-self: center;
 }
 
@@ -116,7 +129,7 @@ label{
   font-size: 19px; 
   padding: 0px 65px;
   border-radius: 10px;
-  background-color: white;
+  background-color: var(--column-background-colour);
   transition: box-shadow .2s, transform .2s;
   box-sizing: border-box;
   line-height: 50px;

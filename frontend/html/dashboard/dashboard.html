@@ -12,7 +12,7 @@
             </div>
             <div class="filter-combo">
                 <label for="filters">Filter</label>
-                <select name="filters" id="filters,{{ i }}" onchange="comboChanged(this)">
+                <select name="filters" id="filters,{{ i }}">
                     <option value="all">All</option>
                     <option value="assigned-to-me">Assigned to me</option>
                 </select>
@@ -29,12 +29,12 @@
             {% endfor %}
         </div>
         <div class="view-all,{{ i }}">
-            <button type="button" class="view-all,{{ i }}" id="view-all-btn" onclick="viewAllClicked(this)">View All</button>
+            <button type="button" class="view-all,{{ i }}" id="view-all-btn">View All</button>
         </div>
     </div>
     {% endfor %}
 </div>
 {% endblock content %}
 {% block link_js %}
-<script type="text/javascript" src="{{ url_for('static', filename='javascript/dashboard.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='javascript/dashboard.js') }}"></script>
 {% endblock link_js %}

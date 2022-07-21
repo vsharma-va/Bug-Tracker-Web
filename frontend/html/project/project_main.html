@@ -1,49 +1,33 @@
-{% extends 'layout.html' %}
-{% from 'helper/card_macro.html' import card_macro %}
-
-{% block link_css %}
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/project.css') }}">
+{% extends 'layout.html' %} {% from 'helper/card_macro.html' import card_macro
+%} {% block link_css %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/project.css') }}" />
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
-{% endblock %}
-
-{% block content %}
-<div class='content'>
-    <div class="overlay">
-        <div class="overlay-content">
-            <div id="tag"></div>
-            <div id="status"></div>
-            <div id="full-description"></div>
-            <div id="steps-to-reproduce"></div>
-            <div id="expected-behaviour"></div>
-            <div id="author-to"></div>
-        </div>
-    </div>
-
+{% endblock %} {% block content %}
+<div class="content">
     <div class="columns">
         <div id="open" class="sortable">
-            {% for value in data['open'] %}
-                {{ card_macro(value, "open", loop.index) }}
-            {% endfor %}
+            <p class="column-name">OPEN</p>
+            {% for value in data['open'] %} {{ card_macro(value, "open", loop.index)
+            }} {% endfor %}
         </div>
         <div id="in-progress" class="sortable">
-            {% for value in data['in-progress'] %}
-                {{ card_macro(value, "in-progress", loop.index) }}
-            {% endfor %}
+            <p class="column-name">IN PROGRESS</p>
+            {% for value in data['in-progress'] %} {{ card_macro(value, "in-progress",
+            loop.index) }} {% endfor %}
         </div>
         <div id="to-be-tested" class="sortable">
-            {% for value in data['to-be-tested'] %}
-                {{ card_macro(value, "to-be-tested", loop.index) }}
-            {% endfor %}
+            <p class="column-name">TO BE TESTED</p>
+            {% for value in data['to-be-tested'] %} {{ card_macro(value,
+            "to-be-tested", loop.index) }} {% endfor %}
         </div>
         <div id="closed" class="sortable">
-            {% for value in data['closed'] %}
-                {{ card_macro(value, "close", loop.index) }}
-            {% endfor %}
+            <p class="column-name">CLOSED</p>
+            {% for value in data['closed'] %} {{ card_macro(value, "close",
+            loop.index) }} {% endfor %}
         </div>
     </div>
 </div>
-{% endblock content %}
-{% block link_js %}
-<script type="text/javascript" src="{{ url_for('static', filename='javascript/mainProject.js') }}"></script>
+{% endblock content %} {% block link_js %}
+<script type="module" src="{{ url_for('static', filename='javascript/mainProject.js') }}"></script>
 {% endblock link_js %}

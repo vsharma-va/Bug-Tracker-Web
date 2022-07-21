@@ -1,3 +1,5 @@
+import { Helper } from "./helper/allHelpers.js";
+
 // Global Variables
 let opn;
 let inProgress;
@@ -24,6 +26,7 @@ $(document).ready(function () {
         receive: onReceiveRemove,
         remove: onReceiveRemove,
         start: updateOriginalOrders,
+        cancel: ".column-name",
     }).disableSelection();
 
     inProgress = $("#in-progress").sortable({
@@ -33,6 +36,7 @@ $(document).ready(function () {
         receive: onReceiveRemove,
         remove: onReceiveRemove,
         start: updateOriginalOrders,
+        cancel: ".column-name",
     }).disableSelection();
 
     toBeTested = $("#to-be-tested").sortable({
@@ -42,6 +46,7 @@ $(document).ready(function () {
         receive: onReceiveRemove,
         remove: onReceiveRemove,
         start: updateOriginalOrders,
+        cancel: ".column-name",
     }).disableSelection();
 
     clos = $("#closed").sortable({
@@ -51,6 +56,7 @@ $(document).ready(function () {
         receive: onReceiveRemove,
         remove: onReceiveRemove,
         start: updateOriginalOrders,
+        cancel: ".column-name",
     }).disableSelection();
 
     updateOriginalOrders();
@@ -68,15 +74,18 @@ $(document).ready(function () {
 */
 function onReceiveRemove(event, ui) {
     let columnName = event.target.id.toString();
+    let sorted = $(`#${columnName}`).sortable("serialize");
+    // console.log($(`#${columnName}`).sortable("toArray", {attribute: "data-id"}));
+    let idInOrder = $(`#${columnName}`).sortable("toArray", {attribute: "data-id"});
+    idInOrder.splice(0, 1);
+
     // you can find out about all the properties by printing ui.item to the console
     let allChildren = ui.item['0'].children;
-    // console.log(allChildren);
+    // console.log(ui.item['0'].dataset['id']);
     // console.log(event.target.id);
     // console.log(allChildren.tag.textContent);
     // console.log(allChildren.tag.style.cssText.split(":")[1].replaceAll(";", "").trim());
 
-    console.log(columnName);
-    let sorted = $(`#${columnName}`).sortable("serialize");
     let originalOrder;
     let eventType;
 
@@ -104,15 +113,12 @@ function onReceiveRemove(event, ui) {
             break;
     }
 
-    console.log(`${originalOrder} -> ${eventType}`);
-    console.log(`${sorted} -> ${eventType}`);
-
     // post request. Used to update the database.
     let xml = new XMLHttpRequest();
-    xml.open("POST", window.location.href + `/on/${eventType}`, true);
-    xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     // new_order and original_order are the results of sortable("serialize")
     let dataToSend = JSON.stringify({
+        "id": ui.item["0"].dataset["id"].toString(),
+        "id_in_order": idInOrder.toString(),
         "tag": allChildren.tag.textContent,
         "tag_color": allChildren.tag.style.cssText.split(":")[1].replaceAll(";", "").trim(),
         "column": allChildren.column.textContent,
@@ -123,29 +129,28 @@ function onReceiveRemove(event, ui) {
         "original_order": originalOrder,
         "event_type": eventType,
     });
-    xml.send(dataToSend);
     /*
         plans to fix drag and drop wrt database
         return some value from flask function when the database is updated
         Then update the page by using ajax so that html ids are correct and wrong elements are not added or deleted
     */
     // updatePage is used to update the ids of the divs so that wrong elements are not removed or added
-    xml.onreadystatechange = () => {
+    let onReadyFunc = () => {
         if (xml.readyState == 4 && xml.status == 200) {
             if (xml.responseText === "receive") {
                 updatePage();
             }
         }
     }
+    let url = window.location.href + `/on/${eventType}`
+    Helper.httpRequest(xml, "POST", url, onReadyFunc, dataToSend);
 
 }
 
 function updatePage() {
     let xml = new XMLHttpRequest();
-    xml.open("GET", `${window.location.href}/update`, true);
-    xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
-    xml.onreadystatechange = () => {
+    let onReadyFunc = () => {
         if (xml.readyState == 4 && xml.status == 200) {
             // cardHtml is a dictionary sent from flask {'column_name': datainlist}
             let cardHtml = JSON.parse(xml.responseText);
@@ -155,15 +160,12 @@ function updatePage() {
                 cardHtml[element.id].forEach((value) => {
                     totalValue += value;
                 });
+                totalValue = `<p class='column-name'>${element.id.toUpperCase().replaceAll("-", " ")}</p> \n` + totalValue;
                 element.innerHTML = totalValue;
             });
         }
     }
-
-    xml.send(null);
-}
-
-function cardClicked() {
+    Helper.httpRequest(xml, "GET", `${window.location.href}/update`, onReadyFunc);
 }
 
 function updateOriginalOrders(columnName) {
@@ -189,3 +191,16 @@ function updateOriginalOrders(columnName) {
 }
 
 setInterval(updatePage, 40000);
+
+let allCards = document.getElementsByClassName("card");
+Array.from(allCards).forEach((element) => {
+    element.addEventListener("click", cardOnClick, false);
+});
+
+
+function cardOnClick(event){
+    let clickedElement = event.target;
+    let columnAndPosition = clickedElement.id.split("_");
+    let xml = XMLHttpRequest()
+    Helper.httpRequest(xml, "GET", window.location.href + "loadoverlay");
+}

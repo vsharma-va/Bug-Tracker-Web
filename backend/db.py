@@ -3,16 +3,28 @@ from flask.cli import with_appcontext
 from flask_wtf.csrf import current_app, g
 import psycopg2
 
-
-def get_db():
+def get_db(new=False):
     if 'db' not in g:
-        g.db = psycopg2.connect(
+        g.db =psycopg2.connect(
             host='localhost',
             database="Bug-Tracker",
             user="postgres",
             password="Ihatepassword"
         )
         g.db.autocommit = True
+    if new == True and 'noauto' not in g:
+        g.noauto = psycopg2.connect(
+            host='localhost',
+            database="Bug-Tracker",
+            user="postgres",
+            password="Ihatepassword"
+        )
+        g.noauto.autocommit = False
+        # g.noauto.isolation_level(ISOLATION_LEVEL_REPEATABLE_READ)
+        return g.noauto
+    elif new == True and 'noauto' in g:
+        return g.noauto
+    
     return g.db
 
 def close_db(e=None):

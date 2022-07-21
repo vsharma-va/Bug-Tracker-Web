@@ -1,6 +1,8 @@
-import db
 from enum import Enum
-from flask import redirect, url_for
+import time
+from turtle import update
+from psycopg2.errors import SerializationFailure
+import db
 
 class Status(Enum):
     OPEN = 'open'
@@ -73,9 +75,13 @@ class CrudHelper():
                 return cursor.fetchall()
 
     def update_data_and_reorder(self, order_dict: dict, update_card_data: dict, project_name: str):
+        self.db.autocommit = True
         cursor = self.db.cursor()
         cursor.execute("SELECT id FROM projectUserInfo WHERE project_name = %s", [project_name])
         project_id = cursor.fetchone()[0]
+        print(update_card_data['id_in_order'], f'-------> crud-helper-py')
+        print(update_card_data['id'], '--------> crudhelper')
+        present_cards_counter = 0
         for key in order_dict.keys():
             # go to project.py to understand why key == 'add' or 'remove' is used
             if key == 'add':
@@ -83,15 +89,17 @@ class CrudHelper():
                 assigned_to = update_card_data['by'].split('->')[1].strip()
                 by_user_id = self.get_user_id_from_user_name(by_user)
                 assigned_to_id = self.get_user_id_from_user_name(assigned_to)
-                cursor.execute("INSERT INTO projectData (project_id, tag, tag_color, column_name, description, by_user, assigned_to, col_pos) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", [project_id, update_card_data['tag'], update_card_data['tag_color'], update_card_data['column'], update_card_data['description'], by_user_id, assigned_to_id, order_dict[key]])
+                cursor.execute("INSERT INTO projectData (id, project_id, tag, tag_color, column_name, description, by_user, assigned_to, col_pos) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", [int(update_card_data['id']), project_id, update_card_data['tag'], update_card_data['tag_color'], update_card_data['column'], update_card_data['description'], by_user_id, assigned_to_id, order_dict[key]])
             elif key == 'remove':
                 # column empty condition
                 if order_dict[key] == 'all':
-                    cursor.execute("DELETE FROM projectData WHERE column_name = %s AND project_id = %s", [update_card_data['column'], project_id])
+                    cursor.execute("DELETE FROM projectData WHERE column_name = %s AND project_id = %s AND id = %s", [update_card_data['column'], project_id, int(update_card_data['id'])])
                 else:
-                    cursor.execute("DELETE FROM projectData WHERE col_pos = %s AND project_id = %s AND column_name = %s", [order_dict[key], project_id, update_card_data['column']])
+                    cursor.execute("DELETE FROM projectData WHERE col_pos = %s AND project_id = %s AND column_name = %s AND id = %s", [order_dict[key], project_id, update_card_data['column'], int(update_card_data['id'])])
             else:
-                cursor.execute("UPDATE projectData SET col_pos = %s WHERE col_pos = %s AND column_name = %s ", [order_dict[key], key, update_card_data['column']])
+                print(key, order_dict[key], update_card_data['column'], update_card_data['description'])
+                cursor.execute("UPDATE projectData SET col_pos = %s WHERE col_pos = %s AND column_name = %s AND description != %s AND id = %s", [order_dict[key], key, update_card_data['column'], update_card_data['description'], update_card_data['id_in_order'][present_cards_counter]])
+                present_cards_counter += 1
     
     def get_user_name_from_user_id(self, user_id: int): 
         cursor = self.db.cursor()

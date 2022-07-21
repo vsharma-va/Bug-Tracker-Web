@@ -45,6 +45,8 @@ def on_receive_or_remove(project_name, event_type):
     if request.method == "POST":
         data = request.get_json(force=True)
         data['column'] = data['received_by']
+        id_str: str = data['id_in_order']
+        data['id_in_order'] = id_str.replace('[', '').replace(']', '').split(',')
         '''
         serialize returns a stringwith their ids in order seperated by &
         eg. if a card with i
@@ -66,16 +68,16 @@ def on_receive_or_remove(project_name, event_type):
                     therefore it is compared with new_position list to find out the new position for 
                     existing elements
                 '''
+                order_dict = {}
                 for idx, od in enumerate(original_order):
                     new_position = new_order.index(od)
                     temp[idx+1] = new_position + 1
                 # the value which is not in original order is the one which was added
                 new_value = list(filter(lambda z: z not in original_order, new_order))[0]
-                order_dict = {}
                 order_dict['add'] = new_order.index(new_value) + 1
-                # this step is necessary. If col_pos is update before removing an element
-                # the wrong element may be deleted since to find the value col_pos is used
                 order_dict.update(temp)
+                data['id_in_order'].remove(data['id'])
+                print(order_dict)
                 # order_dict -> {'add': new_pos, original_pos: new_pos, ...}
         elif event_type == 'remove':
             if len(new_order) == 1 and new_order[0] == '':
@@ -95,6 +97,7 @@ def on_receive_or_remove(project_name, event_type):
                 order_dict = {}
                 order_dict['remove'] = original_order.index(removed_value) + 1
                 order_dict.update(temp)
+                print(order_dict, 'remove')
                 # order_dict -> {'remove': new_pos, original_pos: new_pos, ...}
                     
         helper = CrudHelper(db.get_db())
@@ -138,3 +141,7 @@ def update_page(project_name):
         html[keys[idx]] = card_html_list
         card_html_list = []
     return json.dumps(html)
+
+@bp.route('/main/<project_name>/loadoverlay')
+def on_click_overlay(project_name):
+    pass
