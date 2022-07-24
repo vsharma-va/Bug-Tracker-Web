@@ -28,7 +28,7 @@ def project_details_page(project_name):
             project_name, status)
         data_dict[status.value] = html_details
     data_dict = helper.order_and_sub_username(data_dict, False)
-    return render_template('project/project_main.html', data=data_dict)
+    return render_template('project/project_main.html', data=data_dict, title=project_name)
 
 @bp.route('/main/<project_name>/on/<event_type>', methods=["GET", "POST"])
 @login_required

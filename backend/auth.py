@@ -23,9 +23,9 @@ def register():
                 "INSERT INTO cUser (username, password) VALUES (%s, %s)",
                 [username, generate_password_hash(password)],
             )
-            return redirect(url_for("auth.home"))
+            return redirect(url_for("dashboard.dash"))
         except:
-            flash("Hello there you have encountered a bug")
+            flash("Hello there you have encountered a bug", 'error')
     return render_template('registeration.html', title='Register', form=form)
 
 
@@ -48,11 +48,11 @@ def login():
                 session['user_id'] = user[0]
                 return redirect(url_for('dashboard.dash'))
             else:
-                flash("Wrong Password")
+                flash("Wrong Password !")
                 # form.password.errors =list(form.password.errors).append('Wrong Password')
         else:
             # form.email.errors + ('No usernames found',)
-            flash("Wrong Password")
+            flash("User Not Found !")
     return render_template('login.html', title='Login', form=form)
 
 # runs before every view is loaded

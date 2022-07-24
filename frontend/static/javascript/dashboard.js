@@ -1,16 +1,35 @@
 import { Helper } from "./helper/allHelpers.js";
+import { Charts } from "./charts.js";
 
-let allCombos = document.getElementsByName("filters");
-Array.from(allCombos).forEach((element) => {
-    element.addEventListener("change", comboChanged);
-})
+let DOUGHNUT_STAT_CHART;
+
+let allCardFilterCombos = document.getElementsByName("filters");
+Array.from(allCardFilterCombos).forEach((element) => {
+    element.addEventListener("change", cardFilterComboChanged);
+});
 
 let allViewAllBtns = document.querySelectorAll('[class^="view-all,"]');
 Array.from(allViewAllBtns).forEach((element) => {
     element.addEventListener("click", viewAllClicked);
-})
+});
 
-function comboChanged(event) {
+let allStatsFilterCombos = document.getElementsByClassName("filter-info-at-a-glance");
+Array.from(allStatsFilterCombos).forEach((element) => {
+    element.addEventListener("change", statsFilterComboChanged);
+});
+
+document.getElementById("invite").addEventListener("click", inviteButtonClicked);
+document.getElementById("add-user-id").addEventListener("click", addUserIdToPopup);
+let allRemoveXInPopup;
+let invitePopupBackground = document.getElementById("invite-popup-background").addEventListener("click", outsideInviteContainerClicked);
+document.getElementById("generate-link").addEventListener("click", generateLinkClicked);
+
+document.getElementById("join").addEventListener("click", joinButtonClicked);
+document.getElementById("join-popup-background").addEventListener("click", outsideJoinContainerClicked);
+document.getElementById("join-confirm-btn").addEventListener("click", joinPopupConfirmClicked);
+
+
+function cardFilterComboChanged(event) {
     let idCombo = event.target.id;
     let comboValue = event.target.value;
     let idComboArray = idCombo.split(",");
@@ -18,7 +37,7 @@ function comboChanged(event) {
     let allFilters = [];
     let index = -1;
     let counter = 0;
-    allCombos.forEach((e) => {
+    allCardFilterCombos.forEach((e) => {
         if (e.id === idCombo) {
             allFilters.push(comboValue);
             index = counter;
@@ -27,11 +46,14 @@ function comboChanged(event) {
         }
         ++counter
     })
+
+    let projectName = idComboArray[idComboArray.length - 1]
+
     // sent to (dashboard.py dash()) every time a combo box is changed
     let xml = new XMLHttpRequest();
     let dataToSend = JSON.stringify({
         "type": `${allFilters}`,
-        "project_name": `${idComboArray[idComboArray.length - 1]}`,
+        "project_name": `${projectName}`,
         "filter_index": `${index}`
     });
 
@@ -40,9 +62,13 @@ function comboChanged(event) {
     let onReadyFunc = () => {
         if (xml.readyState == XMLHttpRequest.DONE) {
             if (xml.status == 200) {
-                alert(xml.responseText);
-                let urlAndFilter = xml.responseText;
-                window.location.href = urlAndFilter.replace("?", "/");
+                let cardDict = JSON.parse(xml.responseText);
+                let insertAt = document.getElementById(`card-container,${projectName}`);
+                let totalValue = "";
+                Array.from(cardDict[projectName]).forEach((element) => {
+                    totalValue += element;
+                });
+                insertAt.innerHTML = totalValue;
             } else {
                 console.log(`http errror -> ${xml.status}`)
             }
@@ -50,7 +76,7 @@ function comboChanged(event) {
             console.log(`error -> ${xml.readyState}`)
         }
     }
-    Helper.httpRequest(xml, "POST", "/authorised/dash", onReadyFunc, dataToSend);
+    Helper.httpRequest(xml, "POST", `/authorised/dash/filter/${allFilters}`, onReadyFunc, dataToSend);
 };
 
 function viewAllClicked(event) {
@@ -65,10 +91,11 @@ window.onload = () => {
         whenever the dashboard.html loads comboLoaded() is called which gets the value of combos
         from (dasboard.py (filter_type_fetch()))
     */
-    comboLoaded();
+    cardFilterComboLoaded();
+    currentProjectStatistics("undefined", false);
 }
 
-function comboLoaded() {
+function cardFilterComboLoaded() {
     let xml = new XMLHttpRequest();
 
     var onReadyFunc = () => {
@@ -79,9 +106,9 @@ function comboLoaded() {
             let filter = filterAndProject[0].replaceAll("\"", "").replaceAll("\'", "").replace("[", "").replace("]", "").split(",");
             let projectName = filterAndProject[1].replaceAll("\"", "").trim();
             let allCombos = document.getElementsByName("filters");
+            console.log(filter);
             if (filter[0].length != 0) {
                 for (let i = 0; i < allCombos.length; ++i) {
-                    console.log(filter[i].trim());
                     allCombos[i].value = filter[i].trim();
                 }
             }
@@ -90,41 +117,100 @@ function comboLoaded() {
     Helper.httpRequest(xml, "GET", "/authorised/filtered/type/fetch", onReadyFunc, null)
 }
 
+function statsFilterComboChanged(event) {
+    let changedComboValue = event.target.value;
+    currentProjectStatistics(changedComboValue, true);
+}
 
+function currentProjectStatistics(projectName, destroyOld) {
+    let insertAt = document.getElementById("current-project-statistics").getContext("2d");
+    let paragraph = document.getElementById("empty-text");
+    let artist = new Charts(insertAt);
+    let xml = new XMLHttpRequest();
+    let onReadyFunc = () => {
+        if (xml.readyState == 4 && xml.status == 200) {
+            let returnValue = JSON.parse(xml.responseText);
+            if (destroyOld === true) {
+                artist.destroyChart(DOUGHNUT_STAT_CHART);
+            }
+            if (Object.keys(returnValue).length === 0) {
+                paragraph.innerHTML = "No Data To Display";
+            } else {
+                paragraph.innerHTML = "";
+                DOUGHNUT_STAT_CHART = artist.drawDoughnutChart(Object.values(returnValue), Object.keys(returnValue), true);
+            }
+        }
+    };
+    Helper.httpRequest(xml, "GET", `/authorised/dash/charts/gcps/${projectName}`, onReadyFunc, null);
+}
 
-// function test() {
-//     var xml = new XMLHttpRequest();
-//     let allCombos = document.getElementsByName("filters")
-//     let allFilters = [];
-//     allCombos.forEach((e) => {
-//         allFilters.push(e.value)
-//     })
+function joinButtonClicked(){
+    let background = document.getElementById("join-popup-background");
+    background.style.display = "grid";
+}
 
-//     var xml = new XMLHttpRequest();
-//     xml.open("POST", "/authorised/dash/update", true)
-//     xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-//     let dataToSend = JSON.stringify({
-//         "type": `${allFilters}`,
-//     });
+function outsideJoinContainerClicked(event){
+    if(event.target.id == "join-popup-background"){
+        event.target.style.display = "none";
+    }
+}
 
-//     xml.onreadystatechange = () => {
-//         if (xml.readyState == 4 && xml.status == 200) {
-//             let cardHtml = JSON.parse(xml.responseText);
-//             let allProjects = document.getElementsByClassName("project-name")
-//             Array.from(allProjects).forEach((element) => {
-//                 console.log(cardHtml[element.innerText]);
-//                 let insertAt = document.getElementById(`card-container,${element.innerText}`);
-//                 let totalValue = "";
-//                 Array.from(cardHtml[element.innerText]).forEach((value) => {
-//                     totalValue += value
-//                 });
-//                 insertAt.innerHTML = totalValue;
-//             });
-//         }
-//     }
-//     xml.send(dataToSend)
+function joinPopupConfirmClicked(){
+    let userInput = document.getElementById("join-link");
+    let xml = new XMLHttpRequest();
+    let dataToSend = JSON.stringify({
+        "join_link": `${userInput.value}`,
+    });
+    let onReadyFunc = () => {console.log(xml.responseText)};
+    Helper.httpRequest(xml, "POST", window.location.href + "/joinWithInvite", onReadyFunc, dataToSend);
+}
 
-// }
+function inviteButtonClicked(event) {
+    let background = document.getElementById("invite-popup-background");
+    background.style.display = "grid";
+}
+
+function addUserIdToPopup(event) {
+    let userInput = prompt("Enter the id of user", -1);
+    let insertAt = document.getElementById("user-id");
+    let toInsert = `<div class='user-id-tag'><p class='user-id-number'>${userInput}</p><button class='remove-user-id'>X</div>`;
+    insertAt.innerHTML += toInsert;
+    allRemoveXInPopup = document.getElementsByClassName("remove-user-id");
+    Array.from(allRemoveXInPopup).forEach((element) => {
+        element.addEventListener("click", xRemoveUserIdClickedInInvitePopup)
+    });
+}
+
+function xRemoveUserIdClickedInInvitePopup(event) {
+    event.target.parentNode.remove();
+}
+
+function generateLinkClicked() {
+    let allIds = document.getElementsByClassName("user-id-number");
+    let projectName = document.getElementById("project-selector").value;
+    console.log(projectName);
+    let allIdsArray = [];
+    for(let i = 0; i < allIds.length; ++i){
+        allIdsArray.push(allIds.item(i).innerText);
+    }
+    let xml = new XMLHttpRequest();
+    let dataToSend = JSON.stringify({
+        "user_ids": `${allIdsArray}`,
+        "project_name": `${projectName}`,
+    });
+    let onReadyFunc = () => {
+        if (xml.readyState == 4 && xml.status == 200){
+            document.getElementById("generated-link").innerHTML = xml.responseText;
+        }
+    };
+    Helper.httpRequest(xml, "POST", window.location.href + "/generateInvite", onReadyFunc, dataToSend);
+}
+
+function outsideInviteContainerClicked(event) {
+    if (event.target.id == "invite-popup-background") {
+        event.target.style.display = "none";
+    }
+}
 
 setInterval(() => {
     let xml = new XMLHttpRequest();
@@ -152,4 +238,10 @@ setInterval(() => {
         }
     }
     Helper.httpRequest(xml, "POST", "/authorised/dash/update", onReadyFunc, dataToSend);
-}, 40000)
+}, 40000);
+
+setInterval(() => {
+    let whereToDisplay = document.getElementById("date-time");
+    let dateTime = new Date();
+    whereToDisplay.textContent = dateTime;
+}, 1000);

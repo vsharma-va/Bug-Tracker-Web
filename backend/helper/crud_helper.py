@@ -1,8 +1,6 @@
+from collections import Counter
 from enum import Enum
-import time
-from turtle import update
-from psycopg2.errors import SerializationFailure
-import db
+from sqlite3 import Cursor
 
 class Status(Enum):
     OPEN = 'open'
@@ -74,7 +72,7 @@ class CrudHelper():
                 cursor.execute("SELECT * FROM projectData WHERE project_id = %s", [project_id])
                 return cursor.fetchall()
 
-    def update_data_and_reorder(self, order_dict: dict, update_card_data: dict, project_name: str):
+    def update_data_and_reorder(self, order_dict: dict, update_card_data: dict, project_name: str) -> None:
         self.db.autocommit = True
         cursor = self.db.cursor()
         cursor.execute("SELECT id FROM projectUserInfo WHERE project_name = %s", [project_name])
@@ -87,8 +85,8 @@ class CrudHelper():
             if key == 'add':
                 by_user = update_card_data['by'].split('->')[0].strip()
                 assigned_to = update_card_data['by'].split('->')[1].strip()
-                by_user_id = self.get_user_id_from_user_name(by_user)
-                assigned_to_id = self.get_user_id_from_user_name(assigned_to)
+                by_user_id = self.get_user_id_by_user_name(by_user)
+                assigned_to_id = self.get_user_id_by_user_name(assigned_to)
                 cursor.execute("INSERT INTO projectData (id, project_id, tag, tag_color, column_name, description, by_user, assigned_to, col_pos) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", [int(update_card_data['id']), project_id, update_card_data['tag'], update_card_data['tag_color'], update_card_data['column'], update_card_data['description'], by_user_id, assigned_to_id, order_dict[key]])
             elif key == 'remove':
                 # column empty condition
@@ -101,17 +99,55 @@ class CrudHelper():
                 cursor.execute("UPDATE projectData SET col_pos = %s WHERE col_pos = %s AND column_name = %s AND description != %s AND id = %s", [order_dict[key], key, update_card_data['column'], update_card_data['description'], update_card_data['id_in_order'][present_cards_counter]])
                 present_cards_counter += 1
     
-    def get_user_name_from_user_id(self, user_id: int): 
+    def get_user_name_by_user_id(self, user_id: int) -> str: 
         cursor = self.db.cursor()
         cursor.execute("SELECT username FROM cUser WHERE id = %s", [user_id])
         username = cursor.fetchone()
         return username[0]
     
-    def get_user_id_from_user_name(self, user_name: str):
+    def get_user_id_by_user_name(self, user_name: str) -> str:
         cursor = self.db.cursor()
         cursor.execute("SELECT id FROM cUser WHERE username = %s", [user_name])
         user_id = cursor.fetchone()
         return user_id[0]
+    
+    def get_num_ele_in_all_columns_by_projectid(self, project_id: int) -> dict:
+        cursor = self.db.cursor()
+        cursor.execute("SELECT column_name FROM projectData WHERE project_id = %s order by column_name", [project_id])
+        query_results = cursor.fetchall()
+        clean_query_result = [ele[0] for ele in query_results]
+        return Counter(clean_query_result)
+    
+    def get_projectid_by_project_name(self, project_name: str) -> str:
+        cursor = self.db.cursor()
+        cursor.execute("SELECT id FROM projectuserinfo WHERE project_name = %s", [project_name])
+        project_id = cursor.fetchone()
+        return project_id[0]
+    
+    def get_next_serial_num(self, table_name: str) -> str:
+        cursor = self.db.cursor()
+        # cursor.execute(f"SELECT nextval({serial_name}::regclass)")
+        cursor.execute(f"SELECT id FROM {table_name} ORDER BY id DESC LIMIT 1")
+        serial_num = cursor.fetchone()
+        if serial_num is None:
+            return 1
+        else:
+            return serial_num[0] + 1
+    
+    def get_data_to_decode_invite(self, encoded_text: str):
+        cursor = self.db.cursor()
+        cursor.execute(f"SELECT * FROM userInvites WHERE encrypted_code = %s", [encoded_text])
+        result = cursor.fetchone()
+        data_to_decode = {}
+        data_to_decode['created_by'] = result[1]
+        data_to_decode['key'] = result[2]
+        data_to_decode['encrypted_code'] = result[3]
+        data_to_decode['nonce_length'] = result[4]
+        return data_to_decode
+    
+    def insert_into_user_invites_table(self, created_by: int, key: bytes, encrypted_code: bytes, nonce_length: int, datetimestamp: str):
+        cursor = self.db.cursor()
+        cursor.execute("INSERT INTO userInvites (created_by, key, encrypted_code, nonce_length, date_time_created) VALUES (%s, %s, %s, %s, %s)", [created_by, key, encrypted_code, nonce_length, datetimestamp])
     
     @staticmethod
     def serialize_dict(html_details: dict) -> dict:
@@ -139,9 +175,9 @@ class CrudHelper():
                     tup_list = list(tup)
                     if len(tup_list) != 0:
                         if tup_list[6] != None and tup_list[7] != None:
-                            tup_list[6] = self.get_user_name_from_user_id(
+                            tup_list[6] = self.get_user_name_by_user_id(
                                 int(tup[6]))
-                            tup_list[7] = self.get_user_name_from_user_id(
+                            tup_list[7] = self.get_user_name_by_user_id(
                                 int(tup[7]))
                     updated_value.append(tup_list)
             ordered_html_dict[key] = updated_value

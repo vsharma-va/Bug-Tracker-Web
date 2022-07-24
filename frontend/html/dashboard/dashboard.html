@@ -1,38 +1,116 @@
 {% extends 'layout.html' %}
 {% block link_css %}
 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/dashboard.css')}}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock link_css %}
 {% block content %}
-<div class='content'>
-    {% for i in dict_keys %}
-    <div class='project-container'>
-        <div class="project-heading">
-            <div class='name'>
-                <span class='project-name'>{{ i }}</span>
+
+<div id="join-popup-background">
+    <div id="join-popup-container">
+        <div class="all-elements-join-popup-wrapper">
+            <div id="join-popup-input-header">
+                <p id="join-popup-header">Enter the invite link</p>
             </div>
-            <div class="filter-combo">
-                <label for="filters">Filter</label>
-                <select name="filters" id="filters,{{ i }}">
-                    <option value="all">All</option>
-                    <option value="assigned-to-me">Assigned to me</option>
-                </select>
+            <div id="join-popup-input-link">
+                <input type="text" name="join-link" id="join-link">
             </div>
-        </div>
-        <div class="card-container" id="card-container,{{ i }}">
-            {% for z in value[i] %}
-            <div class='card'>
-                <p class='tag' style='color: {{ z[3] }}'>{{z[2]}}</p>
-                <p class='column'>{{ z[4] }}</p>
-                <p class='description'>{{ z[5] }}</p>
-                <p class='by'>{{ z[6] }} -> {{ z[7] }}</p>
+            <div id="confirm-join-btn-div">
+                <button id="join-confirm-btn">Confirm</button>
             </div>
-            {% endfor %}
-        </div>
-        <div class="view-all,{{ i }}">
-            <button type="button" class="view-all,{{ i }}" id="view-all-btn">View All</button>
         </div>
     </div>
-    {% endfor %}
+</div>
+
+<div id="invite-popup-background">
+    <div id="invite-popup-container">
+        <div class="all-elements-invite-popup-wrapper">
+            <div id="project-sel">
+                <label name="project-selector">Select Project:</label>
+                <select name="project-selector" id="project-selector">
+                    {% for i in dict_keys %}
+                    <option value="{{ i }}">{{ i }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div id="id-to-be-invited">
+                <p id="user-id-heading-text">
+                    Users id whom you want to invite:
+                </p>
+                <div id="user-id">
+
+                </div>
+            </div>
+            <div id="confirm-gen__add-id">
+                <button type="button" id="generate-link">Generate Link</button>
+                <button type="button" id="add-user-id">Add User Id</button>
+            </div>
+            <div id="generated-link-container">
+                <p id="generated-link"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class='content'>
+    <header>
+        <button type="button" id="join">Join</button>
+        <button type="button" id="invite">Invite</button>
+        <button type="button" id="logout">Logout</button>
+    </header>
+    <div class="information-at-a-glance">
+        <div id="header">
+            <p id="user-name">Welcome {{ user_name }} !</p>
+            <p id="date-time"></p> <!-- value added by javascript check(dashboard.js)-->
+        </div>
+        <div class="filter-info-at-a-glance">
+            <label name="filter-glance">
+                Select Project Name:
+            </label>
+            <select name="filter-glance" id="filter-glance">
+                {% for i in dict_keys %}
+                <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="charts">
+            <div id="stats-chart-wrapper">
+                <canvas id="current-project-statistics"></canvas>
+                <p id="empty-text"></p>
+            </div>
+            <div id="notifications"></div>
+        </div>
+    </div>
+    <div class="all-project-containers">
+        {% for i in dict_keys %}
+        <div class='project-container'>
+            <div class="project-heading">
+                <div class='name'>
+                    <span class='project-name'>{{ i }}</span>
+                </div>
+                <div class="filter-combo">
+                    <label for="filters">Filter</label>
+                    <select name="filters" id="filters,{{ i }}">
+                        <option value="all">All</option>
+                        <option value="assigned-to-me">Assigned to me</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-container" id="card-container,{{ i }}">
+                {% for z in value[i] %}
+                <div class='card'>
+                    <p class='tag' style='color: {{ z[3] }}'>{{z[2]}}</p>
+                    <p class='column'>{{ z[4] }}</p>
+                    <p class='description'>{{ z[5] }}</p>
+                    <p class='by'>{{ z[6] }} -> {{ z[7] }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="view-all,{{ i }}">
+                <button type="button" class="view-all,{{ i }}" id="view-all-btn">View All</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock content %}
 {% block link_js %}
