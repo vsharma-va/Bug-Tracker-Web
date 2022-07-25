@@ -1,6 +1,5 @@
 from collections import Counter
 from enum import Enum
-from sqlite3 import Cursor
 
 class Status(Enum):
     OPEN = 'open'
@@ -77,8 +76,6 @@ class CrudHelper():
         cursor = self.db.cursor()
         cursor.execute("SELECT id FROM projectUserInfo WHERE project_name = %s", [project_name])
         project_id = cursor.fetchone()[0]
-        print(update_card_data['id_in_order'], f'-------> crud-helper-py')
-        print(update_card_data['id'], '--------> crudhelper')
         present_cards_counter = 0
         for key in order_dict.keys():
             # go to project.py to understand why key == 'add' or 'remove' is used
@@ -148,6 +145,29 @@ class CrudHelper():
     def insert_into_user_invites_table(self, created_by: int, key: bytes, encrypted_code: bytes, nonce_length: int, datetimestamp: str):
         cursor = self.db.cursor()
         cursor.execute("INSERT INTO userInvites (created_by, key, encrypted_code, nonce_length, date_time_created) VALUES (%s, %s, %s, %s, %s)", [created_by, key, encrypted_code, nonce_length, datetimestamp])
+    
+    def add_user_to_a_project(self, user_id_to_add: str, project_name: str):
+        cursor = self.db.cursor()
+        cursor.execute("SELECT * FROM projectUserInfo WHERE project_name = %s", [project_name])
+        row = cursor.fetchone()
+        new_users = ''
+        project_id = self.get_projectid_by_project_name(project_name)
+        if user_id_to_add not in str(row[2]):
+            new_users = str(row[2]) + ', ' + user_id_to_add
+            cursor.execute("UPDATE projectUserInfo SET users = %s WHERE id = %s", [new_users, row[0]])
+            cursor.execute("INSERT INTO userHierarchyProjects (project_id, status, user_id) VALUES(%s, %s, %s)", [project_id, 'admin', int(user_id_to_add)])
+        else:
+            new_users = row[2]
+    
+    def get_all_user_projects(self, user_id: int):
+        cursor = self.db.cursor()
+        cursor.execute(
+                "SELECT * FROM projectUserInfo WHERE users LIKE '%%%s%%';", [int(str(user_id))])
+        result = cursor.fetchall()
+        if len(result) == 0:
+            return 'none'
+        else:
+            return result
     
     @staticmethod
     def serialize_dict(html_details: dict) -> dict:

@@ -67,6 +67,7 @@
                 Select Project Name:
             </label>
             <select name="filter-glance" id="filter-glance">
+                <option value="None">None</option>
                 {% for i in dict_keys %}
                 <option value="{{ i }}">{{ i }}</option>
                 {% endfor %}
@@ -116,3 +117,6 @@
 {% block link_js %}
 <script type="module" src="{{ url_for('static', filename='javascript/dashboard.js') }}"></script>
 {% endblock link_js %}
+{% block flash_messages %}
+<div id="error-flash"></div>
+{% endblock flash_messages %}

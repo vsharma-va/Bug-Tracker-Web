@@ -92,7 +92,7 @@ window.onload = () => {
         from (dasboard.py (filter_type_fetch()))
     */
     cardFilterComboLoaded();
-    currentProjectStatistics("undefined", false);
+    currentProjectStatistics("None", false);
 }
 
 function cardFilterComboLoaded() {
@@ -130,11 +130,14 @@ function currentProjectStatistics(projectName, destroyOld) {
     let onReadyFunc = () => {
         if (xml.readyState == 4 && xml.status == 200) {
             let returnValue = JSON.parse(xml.responseText);
+            console.log(returnValue);
             if (destroyOld === true) {
                 artist.destroyChart(DOUGHNUT_STAT_CHART);
             }
             if (Object.keys(returnValue).length === 0) {
                 paragraph.innerHTML = "No Data To Display";
+            } else if(returnValue['status'] === 'none'){
+                paragraph.innerHTML = "Please select a project from the filter above";
             } else {
                 paragraph.innerHTML = "";
                 DOUGHNUT_STAT_CHART = artist.drawDoughnutChart(Object.values(returnValue), Object.keys(returnValue), true);
@@ -161,7 +164,19 @@ function joinPopupConfirmClicked(){
     let dataToSend = JSON.stringify({
         "join_link": `${userInput.value}`,
     });
-    let onReadyFunc = () => {console.log(xml.responseText)};
+    let onReadyFunc = () => {
+        if(xml.readyState == 4 && xml.status == 200){
+            let returnValue = JSON.parse(xml.responseText);
+            console.log(returnValue);
+            if(returnValue["status"] == 'error'){
+                let insertAt = document.getElementById("error-flash");
+                insertAt.innerHTML = returnValue["html"]
+            } else if(returnValue["status"] == "success"){
+                let insertAt = document.getElementById("error-flash");
+                insertAt.innerHTML = returnValue["html"]
+            }
+        }
+    };
     Helper.httpRequest(xml, "POST", window.location.href + "/joinWithInvite", onReadyFunc, dataToSend);
 }
 
