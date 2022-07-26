@@ -98,7 +98,7 @@
     ```sql
     CREATE TABLE IF NOT EXISTS public.userinvites
     (
-    id serial NOT NULL,
+    id serial,
     created_by integer,
     key bytea,
     encrypted_code bytea,

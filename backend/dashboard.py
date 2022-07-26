@@ -1,14 +1,10 @@
-from base64 import b64encode
 from datetime import datetime
 import json
-from ntpath import join
-import random
-from flask import render_template, request
+from flask import render_template, request, flash
 from flask_wtf.csrf import Blueprint, session
 import secrets
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 import binascii
-import cryptography.exceptions
 
 import db
 from auth import login_required
@@ -116,19 +112,23 @@ def dash_update():
 @login_required
 def get_current_project_statistics(project_name):
     helper = CrudHelper(db.get_db())
-    if len(project_name) == 0 or project_name == None or project_name == 'undefined':
-        try:
-            project_id = session['project_id_for_graph']
-        except KeyError:
-            project_id = 1
+    try:
+        project_id = session['project_id_for_graph']
+    except KeyError:
+        if project_name == 'None':
+            project_id = 'none'
+        else:
+            project_id = -1
+    
+    all_projects = helper.get_all_user_projects(int(session['user_id']))
+    if project_id == 'none' or all_projects == 'none' or project_name == 'None':
+        stats = {'status': 'none'}
+        return json.dumps(stats)
     else:
-        try:
-            project_id = int(project_name)
-        except ValueError:
-            project_id = helper.get_projectid_by_project_name(project_name)
-    session['project_id_for_graph'] = project_id
-    stats = helper.get_num_ele_in_all_columns_by_projectid(project_id)
-    return json.dumps(stats)
+        project_id = helper.get_projectid_by_project_name(project_name)
+        session['project_id_for_graph'] = project_id
+        stats = helper.get_num_ele_in_all_columns_by_projectid(project_id)
+        return json.dumps(stats)
 
 @bp.route("/dash/generateInvite", methods=["POST"])
 @login_required
@@ -161,6 +161,14 @@ def join_with_invite():
         data_to_decode = helper.get_data_to_decode_invite(join_link_clean)
         key = binascii.unhexlify(data_to_decode['key'])
         cipher_text = binascii.unhexlify(data_to_decode['encrypted_code'])
-        nonce = cipher_text[:int(data_to_decode['nonce_length'])]
         decrypt = AESGCM(key).decrypt(cipher_text[:int(data_to_decode['nonce_length'])], cipher_text[int(data_to_decode['nonce_length']):], b'')
-        #split, then crud
+        decrypt_str = decrypt.decode('utf-8')
+        all_values = decrypt_str.split('/')
+        invited_user_ids = all_values[2].split('=')[1]
+        project_invited_to = all_values[3].split('=')[1]
+        logged_in_userid = session['user_id']
+        if str(logged_in_userid) not in invited_user_ids:
+            return json.dumps({'html': render_template('helper/flash_messages.html', flash_color="flash-red", message="You were not invited. Ask the project admin to create another invite with your user id included"), 'status': 'error'})
+        else:
+            helper.add_user_to_a_project(str(logged_in_userid), project_invited_to)
+            return{'html': render_template('helper/flash_messages.html', flash_color="flash-green", message="Added to project successfully !"), 'status': 'success'}
