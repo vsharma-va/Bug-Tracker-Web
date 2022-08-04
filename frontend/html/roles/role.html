@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+{% block link_css %}
+<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/roles.css')}}">
+{% endblock link_css %}
+
+{% block content %}
+<div class="content">
+    <header id="page-heading">{{ project_name }}-Roles</header>
+    <div id="heading-current-roles">
+        <p id="current-roles-heading">
+            All Current Roles
+        </p>
+    </div>
+    <div id="all-current-roles-container">
+        {% for role in all_roles %}
+        <div class="hover-dropdown" id="hover-dropdown__{{ role[-1] }}">
+            <div class="roles" id="role__{{ role[-1] }}">
+                <button class="role-btn" id="btn_role__{{ role[-1] }}">{{ role[-1] }}</button>
+            </div>
+            <div class="dropdown-content" id="dropdown-content__{{ role[-1] }}">
+                <p id="can-delete-from-heading__{{ role[-1] }}" class="can-delete-from-heading">
+                    CAN DELETE FROM ->
+                </p>
+                <div id="can-delete-from-columns__{{ role[-1] }}" class="can-delete-from-columns">
+                    {% for columns in role[2].split(',') %}
+                        <p class="column-name-move-to-and-from">
+                            {{ columns.strip() }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+                <p id="can-move-to-and-from__{{ role[-1] }}" class="can-move-to-and-from-heading">
+                    CAN MOVE TO AND FROM ->
+                </p>
+                <div id="can-move-to-and-from-columns__{{ role[-1] }}" class="can-move-to-and-from-columns">
+                    {% for columns in role[3].split(',') %}
+                    <p class="column-name-move-to-and-from">
+                        {{ columns.strip() }}
+                    </p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}

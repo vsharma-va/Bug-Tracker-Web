@@ -5,6 +5,38 @@
 {% endblock link_css %}
 {% block content %}
 
+<div id="create-popup-background">
+    <div id="create-popup-container">
+        <div class="all-elements-create-popup-wrapper">
+            <div id="create-popup-project-heading">
+                <p id="create-popup-input-heading">
+                    Enter the name of the new project:
+                </p>
+            </div>
+            <div id="create-popup-project-input">
+                <input type="text" name="create-project-name" id="project-name">
+            </div>
+            <div id="create-popup-confirm-create">
+                <button id="confirm-create">Create</button>
+            </div>
+        </div>
+    </div>
+    <div id="create-popup-information">
+        <div id="create-popup-information-icon-container">
+            <p id="create-popup-information-icon">&#9432; Information</p>
+        </div>
+        <div id="create-popup-information-text-container">
+            <ul id="create-popup-information-bullets">
+                <li>Project name must be unique.</li>
+                <li>You will be given the admin role by default. (Admin has all the permissions)</li>
+                <li>If you want to add more people click on invite. (You will need their user id)</li>
+                <li>By default people you add to project will be given the read only role.</li>
+                <li>To create and assign custom roles go to the roles tab.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
 <div id="join-popup-background">
     <div id="join-popup-container">
         <div class="all-elements-join-popup-wrapper">
@@ -53,6 +85,7 @@
 
 <div class='content'>
     <header>
+        <button type="button" id="create">Create</button>
         <button type="button" id="join">Join</button>
         <button type="button" id="invite">Invite</button>
         <button type="button" id="logout">Logout</button>
@@ -106,7 +139,8 @@
                 </div>
                 {% endfor %}
             </div>
-            <div class="view-all,{{ i }}">
+            <div class="project-specific-buttons">
+                <button class="role, {{ i }}" id="role-btn">Roles</button>
                 <button type="button" class="view-all,{{ i }}" id="view-all-btn">View All</button>
             </div>
         </div>

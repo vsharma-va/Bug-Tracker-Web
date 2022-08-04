@@ -10,7 +10,7 @@ Array.from(allCardFilterCombos).forEach((element) => {
 
 let allViewAllBtns = document.querySelectorAll('[class^="view-all,"]');
 Array.from(allViewAllBtns).forEach((element) => {
-    element.addEventListener("click", viewAllClicked);
+    element.addEventListener("click", projectSpecificBtnClicked);
 });
 
 let allStatsFilterCombos = document.getElementsByClassName("filter-info-at-a-glance");
@@ -18,15 +18,25 @@ Array.from(allStatsFilterCombos).forEach((element) => {
     element.addEventListener("change", statsFilterComboChanged);
 });
 
-document.getElementById("invite").addEventListener("click", inviteButtonClicked);
+let allRoleBtns = document.querySelectorAll('[class^="role,"]');
+console.log(allRoleBtns);
+Array.from(allRoleBtns).forEach((element) => {
+    element.addEventListener("click", projectSpecificBtnClicked);
+});
+
+document.getElementById("invite").addEventListener("click", headerButtonClicked);
 document.getElementById("add-user-id").addEventListener("click", addUserIdToPopup);
 let allRemoveXInPopup;
-let invitePopupBackground = document.getElementById("invite-popup-background").addEventListener("click", outsideInviteContainerClicked);
+let invitePopupBackground = document.getElementById("invite-popup-background").addEventListener("click", outsideContainerClicked);
 document.getElementById("generate-link").addEventListener("click", generateLinkClicked);
 
-document.getElementById("join").addEventListener("click", joinButtonClicked);
-document.getElementById("join-popup-background").addEventListener("click", outsideJoinContainerClicked);
+document.getElementById("join").addEventListener("click", headerButtonClicked);
+document.getElementById("join-popup-background").addEventListener("click", outsideContainerClicked);
 document.getElementById("join-confirm-btn").addEventListener("click", joinPopupConfirmClicked);
+
+document.getElementById("create").addEventListener("click", headerButtonClicked);
+document.getElementById("create-popup-background").addEventListener("click", outsideContainerClicked);
+document.getElementById("confirm-create").addEventListener("click", createPopupConfirmClicked);
 
 
 function cardFilterComboChanged(event) {
@@ -79,10 +89,16 @@ function cardFilterComboChanged(event) {
     Helper.httpRequest(xml, "POST", `/authorised/dash/filter/${allFilters}`, onReadyFunc, dataToSend);
 };
 
-function viewAllClicked(event) {
+function projectSpecificBtnClicked(event) {
     let classNameElement = event.target.className;
+    let idOfElement = event.target.id;
     let projectName = classNameElement.split(",")[1].replaceAll("\"", "").replaceAll("\'", "").trim();
-    let newUrl = window.location.href + `/main/${projectName}`;
+    let newUrl = '';
+    if(idOfElement === 'view-all-btn'){
+        newUrl = window.location.href + `/main/${projectName}`;
+    } else if(idOfElement === 'role-btn'){
+        newUrl = window.location.href + `/roles/${projectName}`;
+    }
     window.location.href = newUrl;
 }
 
@@ -147,13 +163,13 @@ function currentProjectStatistics(projectName, destroyOld) {
     Helper.httpRequest(xml, "GET", `/authorised/dash/charts/gcps/${projectName}`, onReadyFunc, null);
 }
 
-function joinButtonClicked(){
-    let background = document.getElementById("join-popup-background");
+function headerButtonClicked(event){
+    let background = document.getElementById(`${event.target.id}-popup-background`);
     background.style.display = "grid";
 }
 
-function outsideJoinContainerClicked(event){
-    if(event.target.id == "join-popup-background"){
+function outsideContainerClicked(event){
+    if(event.target.id == "invite-popup-background" || event.target.id == "join-popup-background" || event.target.id == "create-popup-background"){
         event.target.style.display = "none";
     }
 }
@@ -180,12 +196,7 @@ function joinPopupConfirmClicked(){
     Helper.httpRequest(xml, "POST", window.location.href + "/joinWithInvite", onReadyFunc, dataToSend);
 }
 
-function inviteButtonClicked(event) {
-    let background = document.getElementById("invite-popup-background");
-    background.style.display = "grid";
-}
-
-function addUserIdToPopup(event) {
+function addUserIdToPopup() {
     let userInput = prompt("Enter the id of user", -1);
     let insertAt = document.getElementById("user-id");
     let toInsert = `<div class='user-id-tag'><p class='user-id-number'>${userInput}</p><button class='remove-user-id'>X</div>`;
@@ -221,10 +232,24 @@ function generateLinkClicked() {
     Helper.httpRequest(xml, "POST", window.location.href + "/generateInvite", onReadyFunc, dataToSend);
 }
 
-function outsideInviteContainerClicked(event) {
-    if (event.target.id == "invite-popup-background") {
-        event.target.style.display = "none";
-    }
+function createPopupConfirmClicked(){
+    let projectName = document.getElementById("project-name").value;
+    let xml = new XMLHttpRequest();
+    let dataToSend = JSON.stringify({
+        "project_name": projectName,
+    });
+    let onReadyFunc = () => {
+        if(xml.readyState == 4 && xml.status == 200){
+            let insertAt = document.getElementById("error-flash");
+            let response = JSON.parse(xml.responseText);
+            if (response["status"] === "ok"){
+                insertAt.innerHTML = response["html"];
+            } else{
+                insertAt.innerHTML = response["html"];
+            }
+        }
+    };
+    Helper.httpRequest(xml, "POST", window.location.href + "/createNewProject", onReadyFunc, dataToSend)
 }
 
 setInterval(() => {

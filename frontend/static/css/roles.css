@@ -1,0 +1,110 @@
+@import url("https://cdn.jsdelivr.net/npm/@xz/fonts@1/serve/cascadia-code.min.css");
+
+:root {
+    --main-background-colour: #FEFBF6;
+    --column-background-colour: #3D3C42;
+    --text-colour: #FEFBF6;
+    --shadow-colour: #252422;
+    --card-hover-colour: #ffe7c7;
+    --header-background-colour: #D6D8D9;
+    --header-text-colour: #040505;
+}
+
+html,
+body {
+    background-color: var(--main-background-colour);
+    font-family: 'Cascadia Code', sans-serif;
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    margin: 0px;
+}
+
+.content {
+    margin: 0px 0px 0px 10px;
+    z-index: -1;
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-rows: 0.03fr 0.01fr 0.5fr 1fr;
+}
+
+header {
+    font-size: 35px;
+    justify-self: center;
+    margin-top: 15px;
+}
+
+#all-current-roles-container {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    justify-content: center;
+    padding: 20px;
+    margin: 0px;
+}
+
+#current-roles-heading {
+    font-size: 23px;
+    justify-self: center;
+    align-self: center;
+    text-align: center;
+}
+
+.hover-dropdown {
+    position: relative;
+    display: inline-block;
+    justify-self: center;
+    align-self: center;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    min-width: min-content;
+    width: max-content;
+    min-height: min-content;
+    height: max-content;
+    left: 0px;
+    background-color: var(--column-background-colour);
+    color: var(--text-colour);
+    border: 2px solid var(--card-hover-colour);
+    padding: 10px;
+    margin-top: 0px;
+    border-radius: 10px;
+    box-shadow: var(--shadow-colour) 0px 0px 2px 0px;
+}
+
+.hover-dropdown:hover .dropdown-content {
+    display: block;
+}
+.hover-dropdown:hover .role-btn{
+    border: 4px solid var(--card-hover-colour);
+}
+
+.role-btn {
+    background-color: var(--column-background-colour);
+    color: var(--text-colour);
+    padding: 16px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 4px solid var(--shadow-colour);
+    box-shadow: var(--shadow-colour) 0px 2px 2px 0px;
+    transition: border .15s;
+}
+
+.role-btn:hover{
+    border: 4px solid var(--card-hover-colour);
+}
+
+.can-delete-from-heading, .can-move-to-and-from-heading{
+    font-weight: bold;
+}
+
+.column-name-move-to-and-from, .column-name-delete-from{
+    margin: 0px;
+}
+
+.can-delete-from-heading{
+    margin-top: 0px;
+}

@@ -1,6 +1,6 @@
 from datetime import datetime
 import json
-from flask import render_template, request, flash
+from flask import render_template, request
 from flask_wtf.csrf import Blueprint, session
 import secrets
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -172,3 +172,18 @@ def join_with_invite():
         else:
             helper.add_user_to_a_project(str(logged_in_userid), project_invited_to)
             return{'html': render_template('helper/flash_messages.html', flash_color="flash-green", message="Added to project successfully !"), 'status': 'success'}
+
+@bp.route("/dash/createNewProject", methods=["POST"])
+@login_required
+def create_new_project():
+    if request.method == "POST":
+        data = request.get_json(force=True)
+        project_name = data['project_name'].strip()
+        helper = CrudHelper(db.get_db())
+        return_value = helper.get_projectid_by_project_name(project_name)
+        if return_value != None:
+            return json.dumps({'status': 'error', 'html': render_template('helper/flash_messages.html', flash_color='flash-red', message='Project with the same name already exists !')})
+        else:
+            helper.add_new_project(project_name, int(session['user_id']))
+            return json.dumps({'status': 'ok', 'html': render_template('helper/flash_messages.html', flash_color='flash-green', message='Project Created Successfully !')})
+    return 'Only accessible through a post request'

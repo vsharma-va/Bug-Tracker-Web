@@ -2,6 +2,7 @@ import dashboard
 import auth
 import project
 import db
+import roles
 from flask import Flask
 import os
 
@@ -26,6 +27,7 @@ db.init_app(app)
 app.register_blueprint(auth.bp)
 app.register_blueprint(dashboard.bp)
 app.register_blueprint(project.bp)
+app.register_blueprint(roles.bp)
 
 if __name__ == '__main__':
     app.run(debug=True, threaded=True, extra_files=extra_files)

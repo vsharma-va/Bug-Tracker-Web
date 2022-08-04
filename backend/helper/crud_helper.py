@@ -1,5 +1,6 @@
 from collections import Counter
 from enum import Enum
+from venv import create
 
 class Status(Enum):
     OPEN = 'open'
@@ -96,17 +97,30 @@ class CrudHelper():
                 cursor.execute("UPDATE projectData SET col_pos = %s WHERE col_pos = %s AND column_name = %s AND description != %s AND id = %s", [order_dict[key], key, update_card_data['column'], update_card_data['description'], update_card_data['id_in_order'][present_cards_counter]])
                 present_cards_counter += 1
     
+    def add_new_project(self, project_name: str, created_by_id: int) -> None:
+        cursor = self.db.cursor()
+        cursor.execute("INSERT INTO projectUserInfo (project_name, users) VALUES(%s, %s)", [project_name, created_by_id])
+        next_serial_number = self.get_next_serial_num('projectUserInfo')
+        cursor.execute("INSERT INTO userHierarchyProjects (project_id, status, user_id) VALUES(%s, %s, %s)", [next_serial_number-1, 'admin', created_by_id])
+        return 'ok'
+    
     def get_user_name_by_user_id(self, user_id: int) -> str: 
         cursor = self.db.cursor()
         cursor.execute("SELECT username FROM cUser WHERE id = %s", [user_id])
         username = cursor.fetchone()
-        return username[0]
+        try:
+            return username[0]
+        except TypeError:
+            return None
     
     def get_user_id_by_user_name(self, user_name: str) -> str:
         cursor = self.db.cursor()
         cursor.execute("SELECT id FROM cUser WHERE username = %s", [user_name])
         user_id = cursor.fetchone()
-        return user_id[0]
+        try:
+            return user_id[0]
+        except TypeError:
+            return None
     
     def get_num_ele_in_all_columns_by_projectid(self, project_id: int) -> dict:
         cursor = self.db.cursor()
@@ -119,7 +133,10 @@ class CrudHelper():
         cursor = self.db.cursor()
         cursor.execute("SELECT id FROM projectuserinfo WHERE project_name = %s", [project_name])
         project_id = cursor.fetchone()
-        return project_id[0]
+        try: 
+            return project_id[0]
+        except TypeError:
+            return None
     
     def get_next_serial_num(self, table_name: str) -> str:
         cursor = self.db.cursor()
@@ -168,6 +185,12 @@ class CrudHelper():
             return 'none'
         else:
             return result
+    
+    def get_all_project_roles(self, project_name):
+        cursor = self.db.cursor()
+        project_id = self.get_projectid_by_project_name(project_name)
+        cursor.execute("SELECT * FROM projectRoles WHERE project_id = %s", [project_id])
+        return cursor.fetchall()
     
     @staticmethod
     def serialize_dict(html_details: dict) -> dict:
