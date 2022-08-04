@@ -138,41 +138,50 @@
     OWNER to postgres;
     ```
 
-## Insert queries to get started (execute them in order given) ->
+# Insert queries to get started (execute them in order given) ->
 
-1. ## Create User
+1.  ## Create User
 
-```
+    ```
+    Create user by going to localhost:5000/auth/register
+    ```
 
-Create user by going to localhost:5000/auth/register
+1.  ## Project user info
 
-```
+    ```sql
+    insert into projectuserinfo (project_name, users) values("Hello There", "1")
+    ```
 
-1. ## Project user info
+1.  ## Project data
 
-```sql
-insert into projectuserinfo (project_name, users) values("Hello There", "1")
-```
+    ```sql
+    insert into projectdata (project_id, tag, tag_color, column_name, description, by_user, assigned_to) values (1, 'Severe', 'red', 'open', 'There is some problem in the database please check it out asap.', 1, 1, 1);
+    ```
 
-1. ## Project data
+1.  ## User hierarchy
 
-   ```sql
-   insert into projectdata (project_id, tag, tag_color, column_name, description, by_user, assigned_to) values (1, 'Severe', 'red', 'open', 'There is some problem in the database please check it out asap.', 1, 1, 1);
-   ```
-
-1. ## User hierarchy
-   ```sql
-   insert into userhierarchyprojects (project_id, status, user_id) values(1, 'admin', 1)
-   ```
+    ```sql
+    insert into userhierarchyprojects (project_id, status, user_id) values(1, 'admin', 1)
+    ```
 
 # Current Progress ->
+
 ## Landing Page
+
 ![Dashboard](https://github.com/vsharma-va/Bug-Tracker-Web/blob/main/progress-images/Dashboard-1.jpg?raw=true)
+
 ## Landing Page part 2
+
 ![Dasboard 2](https://github.com/vsharma-va/Bug-Tracker-Web/blob/main/progress-images/Dashboard-2.jpg?raw=true)
+
 ## Dashboard Create Popup
+
 ![Dasboard 2](https://github.com/vsharma-va/Bug-Tracker-Web/blob/main/progress-images/Dashboard-create.jpg?raw=true)
+
 ## Dasboard Invite Popup
+
 ![Dasboard 2](https://github.com/vsharma-va/Bug-Tracker-Web/blob/main/progress-images/Dashboard-invite.jpg?raw=true)
+
 ## View All Page
+
 ![Dasboard 2](https://github.com/vsharma-va/Bug-Tracker-Web/blob/main/progress-images/view-all.jpg?raw=true)
