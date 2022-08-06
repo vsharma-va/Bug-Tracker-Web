@@ -9,7 +9,10 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 def get_db():
     if 'db' not in g:
-        engine = create_engine(os.getenv("DATABASE_URL"))
+        uri = os.getenv('DATABASE_URL')
+        if uri and uri.startswith("postgres://"):
+            uri = uri.replace("postgres://", "postgresql://", 1)
+        engine = create_engine(uri)
         g.db = scoped_session(sessionmaker(bind=engine))
         g.db.autocommit = True
     return g.gb
