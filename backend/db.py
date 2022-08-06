@@ -8,26 +8,20 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 def get_db():
+    # if 'db' not in g:
+    #     uri = os.getenv('DATABASE_URL')
+    #     if uri and uri.startswith("postgres://"):
+    #         uri = uri.replace("postgres://", "postgresql://", 1)
+    #     engine = create_engine(uri)
+    #     g.db = scoped_session(sessionmaker(bind=engine))
+    #     g.db.autocommit = True
+    
+    # return g.db
     if 'db' not in g:
-        uri = os.getenv('DATABASE_URL')
-        if uri and uri.startswith("postgres://"):
-            uri = uri.replace("postgres://", "postgresql://", 1)
-        engine = create_engine(uri)
-        g.db = scoped_session(sessionmaker(bind=engine))
+        conn_str = os.getenv('DATABASE_URL')
+        g.db =psycopg2.connect(conn_str)
         g.db.autocommit = True
     return g.db
-    # conn_str = os.environ.get('DATABASE_URI')
-    # url = urlparse(conn_str)
-    # if 'db' not in g:
-    #     g.db =psycopg2.connect(
-    #         dbname = url.path[1:],
-    #         user=url.username,
-    #         password=url.password,
-    #         host=url.hostname,
-    #         port=5432
-    #     )
-    #     g.db.autocommit = True
-    # return g.db
 
 def close_db(e=None):
     db = g.pop('db', None)  # None if db doesn't exist
