@@ -1,30 +1,23 @@
+import os
 import click
 from flask.cli import with_appcontext
 from flask_wtf.csrf import current_app, g
+from urllib.parse import urlparse
 import psycopg2
 
-def get_db(new=False):
+def get_db():
+    conn_str = os.environ.get('DATABASE_URI')
+    pa = urlparse(conn_str)
     if 'db' not in g:
-        g.db =psycopg2.connect(
-            host='localhost',
-            database="Bug-Tracker",
-            user="postgres",
-            password="Ihatepassword"
-        )
+        connection_dict = {
+            'dbname': pa.hostname,
+            'user': pa.username,
+            'password': pa.password,
+            'port': pa.port,
+            'host': pa.scheme,
+        }
+        g.db = psycopg2.connect(**connection_dict)
         g.db.autocommit = True
-    if new == True and 'noauto' not in g:
-        g.noauto = psycopg2.connect(
-            host='localhost',
-            database="Bug-Tracker",
-            user="postgres",
-            password="Ihatepassword"
-        )
-        g.noauto.autocommit = False
-        # g.noauto.isolation_level(ISOLATION_LEVEL_REPEATABLE_READ)
-        return g.noauto
-    elif new == True and 'noauto' in g:
-        return g.noauto
-    
     return g.db
 
 def close_db(e=None):
