@@ -14,7 +14,7 @@ def get_db():
             user=url.username,
             password=url.password,
             host=url.hostname,
-            port=url.port
+            port=5432
         )
         g.db.autocommit = True
     return g.db
