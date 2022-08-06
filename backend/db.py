@@ -15,7 +15,7 @@ def get_db():
         engine = create_engine(uri)
         g.db = scoped_session(sessionmaker(bind=engine))
         g.db.autocommit = True
-    return g.gb
+    return g.db
     # conn_str = os.environ.get('DATABASE_URI')
     # url = urlparse(conn_str)
     # if 'db' not in g:
