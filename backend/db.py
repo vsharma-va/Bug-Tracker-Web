@@ -7,16 +7,15 @@ import psycopg2
 
 def get_db():
     conn_str = os.environ.get('DATABASE_URI')
-    pa = urlparse(conn_str)
+    url = urlparse(conn_str)
     if 'db' not in g:
-        connection_dict = {
-            'dbname': pa.hostname,
-            'user': pa.username,
-            'password': pa.password,
-            'port': pa.port,
-            'host': pa.scheme,
-        }
-        g.db = psycopg2.connect(**connection_dict)
+        g.db =psycopg2.connect(
+            dbname = url.path[1:],
+            user=url.username,
+            password=url.password,
+            host=url.hostname,
+            port=url.port
+        )
         g.db.autocommit = True
     return g.db
 
