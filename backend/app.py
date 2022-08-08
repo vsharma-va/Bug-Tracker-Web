@@ -1,11 +1,14 @@
-import backend.dashboard as dashboard
-import backend.auth as auth
-import backend.project as project
-import backend.db as db
-import backend.roles as roles
-from flask import Flask
+import dashboard as dashboard
+import auth as auth
+import project as project
+import db as db
+import roles as roles
+from flask import Flask, redirect, url_for
+from flask_wtf.csrf import session
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 extra_dirs = [
     "../frontend/html"
@@ -21,9 +24,19 @@ for extra_dir in extra_dirs:
 
 app = Flask(__name__, template_folder="../frontend/html",
             static_folder='../frontend/static/')
-app.config['SECRET_KEY'] = '755203b56dc7dccc4d7ee10503232e31'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+# app.config['SECRET_KEY'] = '755203b56dc7dccc4d7ee10503232e31'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 db.init_app(app)
+
+@app.route('/')
+def checkUserStatus():
+    try:
+        session['user_id']
+        return redirect(url_for('dashboard.dash'))
+    except KeyError:
+        return redirect(url_for('auth.register'))
+
 app.register_blueprint(auth.bp)
 app.register_blueprint(dashboard.bp)
 app.register_blueprint(project.bp)

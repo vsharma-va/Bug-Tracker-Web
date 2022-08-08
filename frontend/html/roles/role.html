@@ -23,9 +23,9 @@
                 </p>
                 <div id="can-delete-from-columns__{{ role[-1] }}" class="can-delete-from-columns">
                     {% for columns in role[2].split(',') %}
-                        <p class="column-name-move-to-and-from">
-                            {{ columns.strip() }}
-                        </p>
+                    <p class="column-name-delete-from">
+                        {{ columns.strip() }}
+                    </p>
                     {% endfor %}
 
                 </div>
@@ -43,5 +43,33 @@
         </div>
         {% endfor %}
     </div>
+    <div id="all-users-current-roles-heading">
+        <p id="all-users-current-roles-heading-text">
+            All Users And Their Roles
+        </p>
+    </div>
+    <div id="all-users-current-roles">
+        {% for users in all_users %}
+        {% set parent_loop = loop %}
+        <p class="user-name">
+            {{ users }}
+        </p>
+        <div id="role-selectors">
+            <select name="user_roles" class="user_roles" id="user-roles__{{ users }}">
+                {% for roles in all_roles %}
+                {% if roles[-1] == user_roles_in_order[parent_loop.index0] %}
+                <option value="{{ roles[-1] }}" selected="selected">{{ roles[-1] }}</option>
+                {% else %}
+                <option value="{{ roles[-1] }}">{{ roles[-1] }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        {% endfor %}
+        <button id="save-changes-button">Save</button>
+    </div>
 </div>
 {% endblock content %}
+{% block link_js %}
+<script type="module" src="{{ url_for('static', filename='javascript/roles.js') }}"></script>
+{% endblock link_js %}

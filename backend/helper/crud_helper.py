@@ -1,6 +1,5 @@
 from collections import Counter
 from enum import Enum
-from venv import create
 
 class Status(Enum):
     OPEN = 'open'
@@ -101,6 +100,8 @@ class CrudHelper():
         cursor = self.db.cursor()
         cursor.execute("INSERT INTO projectUserInfo (project_name, users) VALUES(%s, %s)", [project_name, created_by_id])
         next_serial_number = self.get_next_serial_num('projectUserInfo')
+        cursor.execute("INSERT INTO projectRoles(project_id, can_delete_from, can_move_to_and_from, role_name)VALUES (%s, %s, %s, %s)", [next_serial_number-1, 'open, in-progress, to-be-tested, closed', 'open, in-progress, to-be-tested, closed', 'admin'])
+        cursor.execute("INSERT INTO projectRoles(project_id, can_delete_from, can_move_to_and_from, role_name) VALUES (%s, %s, %s, %s)", [next_serial_number-1, '', '', 'read'])
         cursor.execute("INSERT INTO userHierarchyProjects (project_id, status, user_id) VALUES(%s, %s, %s)", [next_serial_number-1, 'admin', created_by_id])
         return 'ok'
     
@@ -172,7 +173,7 @@ class CrudHelper():
         if user_id_to_add not in str(row[2]):
             new_users = str(row[2]) + ', ' + user_id_to_add
             cursor.execute("UPDATE projectUserInfo SET users = %s WHERE id = %s", [new_users, row[0]])
-            cursor.execute("INSERT INTO userHierarchyProjects (project_id, status, user_id) VALUES(%s, %s, %s)", [project_id, 'admin', int(user_id_to_add)])
+            cursor.execute("INSERT INTO userHierarchyProjects (project_id, status, user_id) VALUES(%s, %s, %s)", [project_id, 'read', int(user_id_to_add)])
         else:
             new_users = row[2]
     
@@ -191,6 +192,22 @@ class CrudHelper():
         project_id = self.get_projectid_by_project_name(project_name)
         cursor.execute("SELECT * FROM projectRoles WHERE project_id = %s", [project_id])
         return cursor.fetchall()
+    
+    def get_all_users(self, project_name):
+        cursor = self.db.cursor()
+        cursor.execute("SELECT users FROM projectUserInfo WHERE project_name = %s", [project_name])
+        try:
+            return cursor.fetchone()[0]
+        except TypeError:
+            return None
+    
+    def get_users_current_role_in_project(self, project_id: int, user_id: int):
+        cursor = self.db.cursor()
+        cursor.execute("SELECT status FROM userHierarchyProjects WHERE project_id = %s AND user_id = %s", [project_id, user_id])
+        try:
+            return cursor.fetchone()[0]
+        except TypeError:
+            return None
     
     @staticmethod
     def serialize_dict(html_details: dict) -> dict:

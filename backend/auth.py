@@ -9,7 +9,6 @@ import db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-
 @bp.route("/register", methods=['GET', 'POST'])
 def register():
     form = RegisterationForm(request.form)
