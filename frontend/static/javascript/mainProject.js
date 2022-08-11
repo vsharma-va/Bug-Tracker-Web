@@ -11,56 +11,18 @@ let inProgressOriginalOrder;
 let toBeTestedOriginalOrder;
 let closedOriginalOrder;
 
+let movePermissionDenied = [];
+
 // defining all sortables
 $(document).ready(function () {
+    loadPageWRTUserRole();
     /*
         receive fires when the item is dropped into the sortable
         remove fires when the item is dropped into another sortable
         remove event takes place before receive
         start fires when the item is dragged
     */
-    opn = $("#open").sortable({
-        connectWith: ".sortable",
-        containment: ".columns",
-        cursor: "move",
-        receive: onReceiveRemove,
-        remove: onReceiveRemove,
-        start: updateOriginalOrders,
-        cancel: ".column-name",
-    }).disableSelection();
-
-    inProgress = $("#in-progress").sortable({
-        connectWith: ".sortable",
-        containment: ".columns",
-        cursor: "move",
-        receive: onReceiveRemove,
-        remove: onReceiveRemove,
-        start: updateOriginalOrders,
-        cancel: ".column-name",
-    }).disableSelection();
-
-    toBeTested = $("#to-be-tested").sortable({
-        connectWith: ".sortable",
-        containment: ".columns",
-        cursor: "move",
-        receive: onReceiveRemove,
-        remove: onReceiveRemove,
-        start: updateOriginalOrders,
-        cancel: ".column-name",
-    }).disableSelection();
-
-    clos = $("#closed").sortable({
-        connectWith: ".sortable",
-        containment: ".columns",
-        cursor: "move",
-        receive: onReceiveRemove,
-        remove: onReceiveRemove,
-        start: updateOriginalOrders,
-        cancel: ".column-name",
-    }).disableSelection();
-
-    updateOriginalOrders();
-});
+    });
 
 /* 
     use receive event in jquery sortable
@@ -76,7 +38,7 @@ function onReceiveRemove(event, ui) {
     let columnName = event.target.id.toString();
     let sorted = $(`#${columnName}`).sortable("serialize");
     // console.log($(`#${columnName}`).sortable("toArray", {attribute: "data-id"}));
-    let idInOrder = $(`#${columnName}`).sortable("toArray", {attribute: "data-id"});
+    let idInOrder = $(`#${columnName}`).sortable("toArray", { attribute: "data-id" });
     idInOrder.splice(0, 1);
 
     // you can find out about all the properties by printing ui.item to the console
@@ -160,7 +122,11 @@ function updatePage() {
                 cardHtml[element.id].forEach((value) => {
                     totalValue += value;
                 });
-                totalValue = `<p class='column-name'>${element.id.toUpperCase().replaceAll("-", " ")}</p> \n` + totalValue;
+                if (movePermissionDenied.includes(element.id.toString())){
+                    totalValue = `<p class='not-sortable-column-name'>${element.id.toUpperCase().replaceAll("-", " ")}</p> \n <div id='not-sortable-permission-denied-container'><p class='not-sortable-permission-denied-text'>PERMISSION DENIED</p></div> \n` + totalValue;
+                } else{
+                    totalValue = `<p class='not-sortable-column-name'>${element.id.toUpperCase().replaceAll("-", " ")}</p> \n <div id='not-sortable-permission-denied-container'></div> \n` + totalValue;
+                }
                 element.innerHTML = totalValue;
             });
         }
@@ -198,9 +164,94 @@ Array.from(allCards).forEach((element) => {
 });
 
 
-function cardOnClick(event){
+function cardOnClick(event) {
     let clickedElement = event.target;
     let columnAndPosition = clickedElement.id.split("_");
-    let xml = XMLHttpRequest()
+    let xml = new XMLHttpRequest()
     Helper.httpRequest(xml, "GET", window.location.href + "loadoverlay");
+}
+
+function loadPageWRTUserRole() {
+    let currentRoleDefinition;
+    let xml = new XMLHttpRequest();
+    let urlList = window.location.href.split('/');
+    let projectName = urlList[urlList.length - 1];
+    let dataToSend = JSON.stringify({
+        "project_name": `${projectName}`
+    });
+    let onReadyFunc = () => {
+        if (xml.readyState == 4 && xml.status == 200) {
+            currentRoleDefinition = JSON.parse(xml.responseText);
+            createSortables(currentRoleDefinition);
+        }
+    }
+    Helper.httpRequest(xml, "POST", window.location.href + '/getUserRoleDefinition', onReadyFunc, dataToSend);
+}
+
+function createSortables(currentRoleDefinition){
+    if (currentRoleDefinition['can_move_to_and_from'].includes("open")) {
+        opn = $("#open").sortable({
+            connectWith: ".sortable",
+            containment: ".columns",
+            cursor: "move",
+            receive: onReceiveRemove,
+            remove: onReceiveRemove,
+            start: updateOriginalOrders,
+            cancel: "p[class^='not-sortable-'], div[class^='not-sortable-']",
+        }).disableSelection();
+    }else{
+        movePermissionDenied.push("open");
+        let container = document.getElementById("permission-denied-container-open");
+        container.innerHTML = "<p class='permission-denied-text'>PERMISSION DENIED</p>"
+    }
+
+    if (currentRoleDefinition['can_move_to_and_from'].includes("in-progress")) {
+        inProgress = $("#in-progress").sortable({
+            connectWith: ".sortable",
+            containment: ".columns",
+            cursor: "move",
+            receive: onReceiveRemove,
+            remove: onReceiveRemove,
+            start: updateOriginalOrders,
+            cancel: "p[class^='not-sortable-'], div[class^='not-sortable-']",
+        }).disableSelection();
+    }else{
+        movePermissionDenied.push("in-progress");
+        let container = document.getElementById("permission-denied-container-in-progress");
+        container.innerHTML = "<p class='permission-denied-text'>PERMISSION DENIED</p>"
+    }
+
+    if (currentRoleDefinition['can_move_to_and_from'].includes("to-be-tested")) {
+        toBeTested = $("#to-be-tested").sortable({
+            connectWith: ".sortable",
+            containment: ".columns",
+            cursor: "move",
+            receive: onReceiveRemove,
+            remove: onReceiveRemove,
+            start: updateOriginalOrders,
+            cancel: "p[class^='not-sortable-'], div[class^='not-sortable-']",
+        }).disableSelection();
+    }else{
+        movePermissionDenied.push("to-be-tested");
+        let container = document.getElementById("permission-denied-container-to-be-tested");
+        container.innerHTML = "<p class='permission-denied-text'>PERMISSION DENIED</p>"
+    }
+
+    if (currentRoleDefinition['can_move_to_and_from'].includes("closed")) {
+        clos = $("#closed").sortable({
+            connectWith: ".sortable",
+            containment: ".columns",
+            cursor: "move",
+            receive: onReceiveRemove,
+            remove: onReceiveRemove,
+            start: updateOriginalOrders,
+            cancel: "p[class^='not-sortable-'], div[class^='not-sortable-']",
+        }).disableSelection();
+    } else{
+        movePermissionDenied.push("closed");
+        let container = document.getElementById("permission-denied-container-closed");
+        container.innerHTML = "<p class='permission-denied-text'>PERMISSION DENIED</p>"
+    }
+
+    updateOriginalOrders();
 }

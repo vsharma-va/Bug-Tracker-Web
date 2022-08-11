@@ -1,10 +1,12 @@
+from platform import release
 from flask import render_template, request, render_template_string
-from flask_wtf.csrf import Blueprint
+from flask_wtf.csrf import Blueprint, session
 from helper.crud_helper import CrudHelper, Status
 import json
 
 import db
 from auth import login_required
+from helper.crud_helper import CrudHelper
 
 bp = Blueprint('project', __name__, url_prefix='/authorised/dash')
 
@@ -145,3 +147,14 @@ def update_page(project_name):
 @bp.route('/main/<project_name>/loadoverlay')
 def on_click_overlay(project_name):
     pass
+
+@bp.route('/main/<project_name>/getUserRoleDefinition', methods=['GET', 'POST'])
+@login_required
+def get_user_role(project_name):
+    data = request.get_json(force=True)
+    received_project_name = data['project_name']
+    helper = CrudHelper(db.get_db())
+    project_id = helper.get_projectid_by_project_name(received_project_name)
+    current_role = helper.get_users_current_role_in_project(project_id, session['user_id'])
+    role_definition = helper.get_role_defintion(current_role, project_id)
+    return json.dumps(role_definition)

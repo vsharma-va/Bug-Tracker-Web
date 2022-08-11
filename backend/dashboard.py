@@ -35,7 +35,9 @@ def dash():
     user_name = helper.get_user_name_by_user_id(user_id).split('@')
     user_sub_details = helper.order_and_sub_username(
         html_details, False)
-    return render_template('dashboard/dashboard.html', dict_keys=list(user_sub_details.keys()), value=user_sub_details, user_name=user_name[0])
+    all_current_project_ids = [helper.get_projectid_by_project_name(project_name) for project_name in user_sub_details.keys()]
+    current_user_all_roles = [helper.get_users_current_role_in_project(project_id, user_id) for project_id in all_current_project_ids]
+    return render_template('dashboard/dashboard.html', dict_keys=list(user_sub_details.keys()), value=user_sub_details, user_name=user_name[0], user_roles=current_user_all_roles)
 
 
 '''

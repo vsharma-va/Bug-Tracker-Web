@@ -73,3 +73,6 @@
 {% block link_js %}
 <script type="module" src="{{ url_for('static', filename='javascript/roles.js') }}"></script>
 {% endblock link_js %}
+{% block flash_messages %}
+<div id="error-flash"></div>
+{% endblock flash_messages %}

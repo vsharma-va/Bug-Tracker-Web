@@ -1,3 +1,5 @@
+import { Helper } from "./helper/allHelpers.js";
+
 let allRoleSelectors = document.getElementsByClassName("user_roles");
 Array.from(allRoleSelectors).forEach((element) => {
     element.addEventListener("change", roleSelectorValueChanged);
@@ -26,14 +28,18 @@ function saveChangesButtonClicked(){
     let userNameValueObject = {};
     let xml = new XMLHttpRequest();
     Array.from(allRoleSelectors).forEach((element) =>{
-        console.log(element.id);
-        console.log(element.value);
         userNameValueObject[element.id.split("__")[1].trim()] = element.value;
     });
     let dataToSend = JSON.stringify(userNameValueObject);
     let onReadyFunc = () => {
         if (xml.readyState == 4 && xml.status == 200){
-            console.log("ok");
+            let returnValue = JSON.parse(xml.responseText);
+            if(returnValue["status"] == "success"){
+                let insertAt = document.getElementById("error-flash");
+                insertAt.innerHTML = returnValue["html"]
+                saveChangesButton.disabled = true;
+            }
         }
     }
+    Helper.httpRequest(xml, "POST", window.location.href + "/updateUserRoles", onReadyFunc, dataToSend);
 }

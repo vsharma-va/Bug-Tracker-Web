@@ -1,11 +1,11 @@
 @import url("https://cdn.jsdelivr.net/npm/@xz/fonts@1/serve/cascadia-code.min.css");
 
-:root{
+:root {
     --main-background-colour: #FEFBF6;
     --column-background-colour: #3D3C42;
     --text-colour: #FEFBF6;
     --shadow-colour: #252422;
-    --card-hover-colour: #ffe7c7; 
+    --card-hover-colour: #ffe7c7;
 }
 
 
@@ -18,7 +18,7 @@ body {
     font-family: "Cascadia Code", sans-serif;
 }
 
-.content{
+.content {
     height: 100%;
 }
 
@@ -67,9 +67,30 @@ body {
     column-gap: 1.5%;
 }
 
-.column-name{
+/* .column-name{
     margin: 0px;
     font-size: 20px;
+} */
+
+p[class^="not-sortable"] {
+    margin: 0px;
+    font-size: 20px;
+}
+
+.not-sortable-permission-denied-container {
+    margin: 0px;
+    font-size: 20px;
+    min-width: max-content;
+    min-height: min-content;
+    text-align: center;
+    background-color: #F8D7DA;
+    color: #721C24;
+    border: 2px solid #F5C6CB;
+}
+
+.permission-denied-text{
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 #open,
@@ -84,7 +105,7 @@ body {
     -o-transition: outline 0.15s, transform 0.15s;
     transition: outline 0.15s, transform 0.15s;
     display: grid;
-    grid-template-rows: max-content;
+    grid-template-rows: max-content max-content;
     grid-auto-flow: row;
     grid-auto-rows: 21%;
     height: 100%;

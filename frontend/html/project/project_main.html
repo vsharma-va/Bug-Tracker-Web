@@ -1,28 +1,40 @@
 {% extends 'layout.html' %} {% from 'helper/card_macro.html' import card_macro
 %} {% block link_css %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/project.css') }}" />
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
 {% endblock %} {% block content %}
 <div class="content">
     <div class="columns">
         <div id="open" class="sortable">
-            <p class="column-name">OPEN</p>
+            <p class="not-sortable-column-name">OPEN</p>
+            <div class="not-sortable-permission-denied-container" id="permission-denied-container-open">
+
+            </div>
             {% for value in data['open'] %} {{ card_macro(value, "open", loop.index)
             }} {% endfor %}
         </div>
         <div id="in-progress" class="sortable">
-            <p class="column-name">IN PROGRESS</p>
+            <p class="not-sortable-column-name">IN PROGRESS</p>
+            <div class="not-sortable-permission-denied-container" id="permission-denied-container-in-progress">
+
+            </div>
             {% for value in data['in-progress'] %} {{ card_macro(value, "in-progress",
             loop.index) }} {% endfor %}
         </div>
         <div id="to-be-tested" class="sortable">
-            <p class="column-name">TO BE TESTED</p>
+            <p class="not-sortable-column-name">TO BE TESTED</p>
+            <div class="not-sortable-permission-denied-container" id="permission-denied-container-to-be-tested">
+
+            </div>
             {% for value in data['to-be-tested'] %} {{ card_macro(value,
             "to-be-tested", loop.index) }} {% endfor %}
         </div>
         <div id="closed" class="sortable">
-            <p class="column-name">CLOSED</p>
+            <p class="not-sortable-column-name">CLOSED</p>
+            <div class="not-sortable-permission-denied-container" id="permission-denied-container-closed">
+
+            </div>
             {% for value in data['closed'] %} {{ card_macro(value, "close",
             loop.index) }} {% endfor %}
         </div>

@@ -92,9 +92,12 @@ class CrudHelper():
                 else:
                     cursor.execute("DELETE FROM projectData WHERE col_pos = %s AND project_id = %s AND column_name = %s AND id = %s", [order_dict[key], project_id, update_card_data['column'], int(update_card_data['id'])])
             else:
-                print(key, order_dict[key], update_card_data['column'], update_card_data['description'])
                 cursor.execute("UPDATE projectData SET col_pos = %s WHERE col_pos = %s AND column_name = %s AND description != %s AND id = %s", [order_dict[key], key, update_card_data['column'], update_card_data['description'], update_card_data['id_in_order'][present_cards_counter]])
                 present_cards_counter += 1
+    
+    def update_user_roles(self, user_id: int, project_id: int, new_role_name: str) -> None:
+        cursor = self.db.cursor()
+        cursor.execute("UPDATE userHierarchyProjects SET status = %s WHERE user_id = %s and project_id = %s", [new_role_name, user_id, project_id])
     
     def add_new_project(self, project_name: str, created_by_id: int) -> None:
         cursor = self.db.cursor()
@@ -208,7 +211,14 @@ class CrudHelper():
             return cursor.fetchone()[0]
         except TypeError:
             return None
-    
+        
+    def get_role_defintion(self, role_name: str, project_id: int):
+        cursor = self.db.cursor()
+        cursor.execute("SELECT can_delete_from, can_move_to_and_from FROM projectRoles WHERE role_name = %s AND project_id = %s", [role_name, project_id])
+        query_result = cursor.fetchone()
+        return_dict = {'can_delete_from': query_result[0], 'can_move_to_and_from': query_result[1]}
+        return return_dict
+
     @staticmethod
     def serialize_dict(html_details: dict) -> dict:
         for idx, key in enumerate(html_details.copy().keys()):
@@ -226,7 +236,6 @@ class CrudHelper():
             order_list = [None] * len(html_details.keys())
             for idx, key in enumerate(list(html_details.keys())):
                 order_list[idx] = (key, html_details[key])
-
         ordered_html_dict = {}
         for key, value in order_list:
             updated_value = []
