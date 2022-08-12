@@ -77,6 +77,8 @@ class CrudHelper():
         cursor.execute("SELECT id FROM projectUserInfo WHERE project_name = %s", [project_name])
         project_id = cursor.fetchone()[0]
         present_cards_counter = 0
+        print(order_dict)
+        print(update_card_data)
         for key in order_dict.keys():
             # go to project.py to understand why key == 'add' or 'remove' is used
             if key == 'add':
@@ -93,6 +95,7 @@ class CrudHelper():
                     cursor.execute("DELETE FROM projectData WHERE col_pos = %s AND project_id = %s AND column_name = %s AND id = %s", [order_dict[key], project_id, update_card_data['column'], int(update_card_data['id'])])
             else:
                 cursor.execute("UPDATE projectData SET col_pos = %s WHERE col_pos = %s AND column_name = %s AND description != %s AND id = %s", [order_dict[key], key, update_card_data['column'], update_card_data['description'], update_card_data['id_in_order'][present_cards_counter]])
+                print(present_cards_counter)
                 present_cards_counter += 1
     
     def update_user_roles(self, user_id: int, project_id: int, new_role_name: str) -> None:

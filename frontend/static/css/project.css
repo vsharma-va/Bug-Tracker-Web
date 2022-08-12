@@ -11,10 +11,10 @@
 
 html,
 body {
-    height: 85vh;
+    height: 90vh;
     background-color: var(--main-background-colour);
     color: var(--text-colour);
-    margin: 25px 25px 25px 25px;
+    margin: 15px 25px 25px 25px;
     font-family: "Cascadia Code", sans-serif;
 }
 
@@ -67,6 +67,12 @@ body {
     column-gap: 1.5%;
 }
 
+.column-container{
+    display: grid;
+    grid-template-rows: 0.01fr 1fr;
+    row-gap: 10px;
+}
+
 /* .column-name{
     margin: 0px;
     font-size: 20px;
@@ -105,7 +111,7 @@ p[class^="not-sortable"] {
     -o-transition: outline 0.15s, transform 0.15s;
     transition: outline 0.15s, transform 0.15s;
     display: grid;
-    grid-template-rows: max-content max-content;
+    grid-template-rows: max-content;
     grid-auto-flow: row;
     grid-auto-rows: 21%;
     height: 100%;

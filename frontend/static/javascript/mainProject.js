@@ -14,15 +14,7 @@ let closedOriginalOrder;
 let movePermissionDenied = [];
 
 // defining all sortables
-$(document).ready(function () {
-    loadPageWRTUserRole();
-    /*
-        receive fires when the item is dropped into the sortable
-        remove fires when the item is dropped into another sortable
-        remove event takes place before receive
-        start fires when the item is dragged
-    */
-    });
+$(document).ready(loadPageWRTUserRole());
 
 /* 
     use receive event in jquery sortable
@@ -123,9 +115,9 @@ function updatePage() {
                     totalValue += value;
                 });
                 if (movePermissionDenied.includes(element.id.toString())){
-                    totalValue = `<p class='not-sortable-column-name'>${element.id.toUpperCase().replaceAll("-", " ")}</p> \n <div id='not-sortable-permission-denied-container'><p class='not-sortable-permission-denied-text'>PERMISSION DENIED</p></div> \n` + totalValue;
+                    totalValue = `<p class='not-sortable-column-name'>${element.id.toUpperCase().replaceAll("-", " ")}</p> \n` + totalValue;
                 } else{
-                    totalValue = `<p class='not-sortable-column-name'>${element.id.toUpperCase().replaceAll("-", " ")}</p> \n <div id='not-sortable-permission-denied-container'></div> \n` + totalValue;
+                    totalValue = `<p class='not-sortable-column-name'>${element.id.toUpperCase().replaceAll("-", " ")}</p> \n` + totalValue;
                 }
                 element.innerHTML = totalValue;
             });

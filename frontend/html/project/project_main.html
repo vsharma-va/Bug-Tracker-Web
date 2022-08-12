@@ -6,37 +6,45 @@
 {% endblock %} {% block content %}
 <div class="content">
     <div class="columns">
-        <div id="open" class="sortable">
-            <p class="not-sortable-column-name">OPEN</p>
+        <div id="open-column-container" class="column-container">
             <div class="not-sortable-permission-denied-container" id="permission-denied-container-open">
 
             </div>
-            {% for value in data['open'] %} {{ card_macro(value, "open", loop.index)
-            }} {% endfor %}
+            <div id="open" class="sortable">
+                <p class="not-sortable-column-name">OPEN</p>
+                {% for value in data['open'] %} {{ card_macro(value, "open", loop.index)
+                }} {% endfor %}
+            </div>
         </div>
-        <div id="in-progress" class="sortable">
-            <p class="not-sortable-column-name">IN PROGRESS</p>
+        <div id="in-progress-column-container" class="column-container">
             <div class="not-sortable-permission-denied-container" id="permission-denied-container-in-progress">
 
             </div>
-            {% for value in data['in-progress'] %} {{ card_macro(value, "in-progress",
-            loop.index) }} {% endfor %}
+            <div id="in-progress" class="sortable">
+                <p class="not-sortable-column-name">IN PROGRESS</p>
+                {% for value in data['in-progress'] %} {{ card_macro(value, "in-progress",
+                loop.index) }} {% endfor %}
+            </div>
         </div>
-        <div id="to-be-tested" class="sortable">
-            <p class="not-sortable-column-name">TO BE TESTED</p>
+        <div id="to-be-tested-column-container" class="column-container">
             <div class="not-sortable-permission-denied-container" id="permission-denied-container-to-be-tested">
 
             </div>
-            {% for value in data['to-be-tested'] %} {{ card_macro(value,
-            "to-be-tested", loop.index) }} {% endfor %}
+            <div id="to-be-tested" class="sortable">
+                <p class="not-sortable-column-name">TO BE TESTED</p>
+                {% for value in data['to-be-tested'] %} {{ card_macro(value,
+                "to-be-tested", loop.index) }} {% endfor %}
+            </div>
         </div>
-        <div id="closed" class="sortable">
-            <p class="not-sortable-column-name">CLOSED</p>
+        <div id="closed-column-container" class="column-container">
             <div class="not-sortable-permission-denied-container" id="permission-denied-container-closed">
 
             </div>
-            {% for value in data['closed'] %} {{ card_macro(value, "close",
-            loop.index) }} {% endfor %}
+            <div id="closed" class="sortable">
+                <p class="not-sortable-column-name">CLOSED</p>
+                {% for value in data['closed'] %} {{ card_macro(value, "close",
+                loop.index) }} {% endfor %}
+            </div>
         </div>
     </div>
 </div>
