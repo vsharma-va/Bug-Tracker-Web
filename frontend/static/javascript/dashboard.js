@@ -13,7 +13,9 @@ Array.from(allViewAllBtns).forEach((element) => {
     element.addEventListener("click", projectSpecificBtnClicked);
 });
 
-let allStatsFilterCombos = document.getElementsByClassName("filter-info-at-a-glance");
+let allStatsFilterCombos = document.getElementsByClassName(
+    "filter-info-at-a-glance"
+);
 Array.from(allStatsFilterCombos).forEach((element) => {
     element.addEventListener("change", statsFilterComboChanged);
 });
@@ -24,20 +26,37 @@ Array.from(allRoleBtns).forEach((element) => {
     element.addEventListener("click", projectSpecificBtnClicked);
 });
 
-document.getElementById("invite").addEventListener("click", headerButtonClicked);
-document.getElementById("add-user-id").addEventListener("click", addUserIdToPopup);
+document
+    .getElementById("invite")
+    .addEventListener("click", headerButtonClicked);
+document
+    .getElementById("add-user-id")
+    .addEventListener("click", addUserIdToPopup);
 let allRemoveXInPopup;
-let invitePopupBackground = document.getElementById("invite-popup-background").addEventListener("click", outsideContainerClicked);
-document.getElementById("generate-link").addEventListener("click", generateLinkClicked);
+let invitePopupBackground = document
+    .getElementById("invite-popup-background")
+    .addEventListener("click", outsideContainerClicked);
+document
+    .getElementById("generate-link")
+    .addEventListener("click", generateLinkClicked);
 
 document.getElementById("join").addEventListener("click", headerButtonClicked);
-document.getElementById("join-popup-background").addEventListener("click", outsideContainerClicked);
-document.getElementById("join-confirm-btn").addEventListener("click", joinPopupConfirmClicked);
+document
+    .getElementById("join-popup-background")
+    .addEventListener("click", outsideContainerClicked);
+document
+    .getElementById("join-confirm-btn")
+    .addEventListener("click", joinPopupConfirmClicked);
 
-document.getElementById("create").addEventListener("click", headerButtonClicked);
-document.getElementById("create-popup-background").addEventListener("click", outsideContainerClicked);
-document.getElementById("confirm-create").addEventListener("click", createPopupConfirmClicked);
-
+document
+    .getElementById("create")
+    .addEventListener("click", headerButtonClicked);
+document
+    .getElementById("create-popup-background")
+    .addEventListener("click", outsideContainerClicked);
+document
+    .getElementById("confirm-create")
+    .addEventListener("click", createPopupConfirmClicked);
 
 function cardFilterComboChanged(event) {
     let idCombo = event.target.id;
@@ -54,17 +73,17 @@ function cardFilterComboChanged(event) {
         } else {
             allFilters.push(e.value);
         }
-        ++counter
-    })
+        ++counter;
+    });
 
-    let projectName = idComboArray[idComboArray.length - 1]
+    let projectName = idComboArray[idComboArray.length - 1];
 
     // sent to (dashboard.py dash()) every time a combo box is changed
     let xml = new XMLHttpRequest();
     let dataToSend = JSON.stringify({
-        "type": `${allFilters}`,
-        "project_name": `${projectName}`,
-        "filter_index": `${index}`
+        type: `${allFilters}`,
+        project_name: `${projectName}`,
+        filter_index: `${index}`,
     });
 
     // when state changes to ready the user is redirected to (dashboard.py filtered())
@@ -73,30 +92,42 @@ function cardFilterComboChanged(event) {
         if (xml.readyState == XMLHttpRequest.DONE) {
             if (xml.status == 200) {
                 let cardDict = JSON.parse(xml.responseText);
-                let insertAt = document.getElementById(`card-container,${projectName}`);
+                let insertAt = document.getElementById(
+                    `card-container,${projectName}`
+                );
                 let totalValue = "";
                 Array.from(cardDict[projectName]).forEach((element) => {
                     totalValue += element;
                 });
                 insertAt.innerHTML = totalValue;
             } else {
-                console.log(`http errror -> ${xml.status}`)
+                console.log(`http errror -> ${xml.status}`);
             }
         } else {
-            console.log(`error -> ${xml.readyState}`)
+            console.log(`error -> ${xml.readyState}`);
         }
-    }
-    Helper.httpRequest(xml, "POST", `/authorised/dash/filter/${allFilters}`, onReadyFunc, dataToSend);
-};
+    };
+    Helper.httpRequest(
+        xml,
+        "POST",
+        `/authorised/dash/filter/${allFilters}`,
+        onReadyFunc,
+        dataToSend
+    );
+}
 
 function projectSpecificBtnClicked(event) {
     let classNameElement = event.target.className;
     let idOfElement = event.target.id;
-    let projectName = classNameElement.split(",")[1].replaceAll("\"", "").replaceAll("\'", "").trim();
-    let newUrl = '';
-    if(idOfElement === 'view-all-btn'){
+    let projectName = classNameElement
+        .split(",")[1]
+        .replaceAll('"', "")
+        .replaceAll("'", "")
+        .trim();
+    let newUrl = "";
+    if (idOfElement === "view-all-btn") {
         newUrl = window.location.href + `/main/${projectName}`;
-    } else if(idOfElement === 'role-btn'){
+    } else if (idOfElement === "role-btn") {
         newUrl = window.location.href + `/roles/${projectName}`;
     }
     window.location.href = newUrl;
@@ -109,7 +140,7 @@ window.onload = () => {
     */
     cardFilterComboLoaded();
     currentProjectStatistics("None", false);
-}
+};
 
 function cardFilterComboLoaded() {
     let xml = new XMLHttpRequest();
@@ -119,8 +150,13 @@ function cardFilterComboLoaded() {
             // refer to (dashboard.py (filter_type_fetch()) for return type details)
             let unclean = xml.responseText;
             let filterAndProject = unclean.split(":");
-            let filter = filterAndProject[0].replaceAll("\"", "").replaceAll("\'", "").replace("[", "").replace("]", "").split(",");
-            let projectName = filterAndProject[1].replaceAll("\"", "").trim();
+            let filter = filterAndProject[0]
+                .replaceAll('"', "")
+                .replaceAll("'", "")
+                .replace("[", "")
+                .replace("]", "")
+                .split(",");
+            let projectName = filterAndProject[1].replaceAll('"', "").trim();
             let allCombos = document.getElementsByName("filters");
             console.log(filter);
             if (filter[0].length != 0) {
@@ -129,8 +165,14 @@ function cardFilterComboLoaded() {
                 }
             }
         }
-    }
-    Helper.httpRequest(xml, "GET", "/authorised/filtered/type/fetch", onReadyFunc, null)
+    };
+    Helper.httpRequest(
+        xml,
+        "GET",
+        "/authorised/filtered/type/fetch",
+        onReadyFunc,
+        null
+    );
 }
 
 function statsFilterComboChanged(event) {
@@ -139,7 +181,9 @@ function statsFilterComboChanged(event) {
 }
 
 function currentProjectStatistics(projectName, destroyOld) {
-    let insertAt = document.getElementById("current-project-statistics").getContext("2d");
+    let insertAt = document
+        .getElementById("current-project-statistics")
+        .getContext("2d");
     let paragraph = document.getElementById("empty-text");
     let artist = new Charts(insertAt);
     let xml = new XMLHttpRequest();
@@ -152,48 +196,71 @@ function currentProjectStatistics(projectName, destroyOld) {
             }
             if (Object.keys(returnValue).length === 0) {
                 paragraph.innerHTML = "No Data To Display";
-            } else if(returnValue['status'] === 'none'){
-                paragraph.innerHTML = "Please select a project from the filter above";
+            } else if (returnValue["status"] === "none") {
+                paragraph.innerHTML =
+                    "Please select a project from the filter above";
             } else {
                 paragraph.innerHTML = "";
-                DOUGHNUT_STAT_CHART = artist.drawDoughnutChart(Object.values(returnValue), Object.keys(returnValue), true);
+                DOUGHNUT_STAT_CHART = artist.drawDoughnutChart(
+                    Object.values(returnValue),
+                    Object.keys(returnValue),
+                    true
+                );
             }
         }
     };
-    Helper.httpRequest(xml, "GET", `/authorised/dash/charts/gcps/${projectName}`, onReadyFunc, null);
+    Helper.httpRequest(
+        xml,
+        "GET",
+        `/authorised/dash/charts/gcps/${projectName}`,
+        onReadyFunc,
+        null
+    );
 }
 
-function headerButtonClicked(event){
-    let background = document.getElementById(`${event.target.id}-popup-background`);
+function headerButtonClicked(event) {
+    let background = document.getElementById(
+        `${event.target.id}-popup-background`
+    );
     background.style.display = "grid";
 }
 
-function outsideContainerClicked(event){
-    if(event.target.id == "invite-popup-background" || event.target.id == "join-popup-background" || event.target.id == "create-popup-background"){
+function outsideContainerClicked(event) {
+    if (
+        event.target.id == "invite-popup-background" ||
+        event.target.id == "join-popup-background" ||
+        event.target.id == "create-popup-background"
+    ) {
         event.target.style.display = "none";
     }
 }
 
-function joinPopupConfirmClicked(){
+function joinPopupConfirmClicked() {
     let userInput = document.getElementById("join-link");
     let xml = new XMLHttpRequest();
     let dataToSend = JSON.stringify({
-        "join_link": `${userInput.value}`,
+        join_link: `${userInput.value}`,
     });
     let onReadyFunc = () => {
-        if(xml.readyState == 4 && xml.status == 200){
+        if (xml.readyState == 4 && xml.status == 200) {
             let returnValue = JSON.parse(xml.responseText);
             console.log(returnValue);
-            if(returnValue["status"] == 'error'){
+            if (returnValue["status"] == "error") {
                 let insertAt = document.getElementById("error-flash");
-                insertAt.innerHTML = returnValue["html"]
-            } else if(returnValue["status"] == "success"){
+                insertAt.innerHTML = returnValue["html"];
+            } else if (returnValue["status"] == "success") {
                 let insertAt = document.getElementById("error-flash");
-                insertAt.innerHTML = returnValue["html"]
+                insertAt.innerHTML = returnValue["html"];
             }
         }
     };
-    Helper.httpRequest(xml, "POST", window.location.href + "/joinWithInvite", onReadyFunc, dataToSend);
+    Helper.httpRequest(
+        xml,
+        "POST",
+        window.location.href + "/joinWithInvite",
+        onReadyFunc,
+        dataToSend
+    );
 }
 
 function addUserIdToPopup() {
@@ -203,7 +270,7 @@ function addUserIdToPopup() {
     insertAt.innerHTML += toInsert;
     allRemoveXInPopup = document.getElementsByClassName("remove-user-id");
     Array.from(allRemoveXInPopup).forEach((element) => {
-        element.addEventListener("click", xRemoveUserIdClickedInInvitePopup)
+        element.addEventListener("click", xRemoveUserIdClickedInInvitePopup);
     });
 }
 
@@ -216,68 +283,89 @@ function generateLinkClicked() {
     let projectName = document.getElementById("project-selector").value;
     console.log(projectName);
     let allIdsArray = [];
-    for(let i = 0; i < allIds.length; ++i){
+    for (let i = 0; i < allIds.length; ++i) {
         allIdsArray.push(allIds.item(i).innerText);
     }
     let xml = new XMLHttpRequest();
     let dataToSend = JSON.stringify({
-        "user_ids": `${allIdsArray}`,
-        "project_name": `${projectName}`,
+        user_ids: `${allIdsArray}`,
+        project_name: `${projectName}`,
     });
     let onReadyFunc = () => {
-        if (xml.readyState == 4 && xml.status == 200){
-            document.getElementById("generated-link").innerHTML = xml.responseText;
+        if (xml.readyState == 4 && xml.status == 200) {
+            document.getElementById("generated-link").innerHTML =
+                xml.responseText;
         }
     };
-    Helper.httpRequest(xml, "POST", window.location.href + "/generateInvite", onReadyFunc, dataToSend);
+    Helper.httpRequest(
+        xml,
+        "POST",
+        window.location.href + "/generateInvite",
+        onReadyFunc,
+        dataToSend
+    );
 }
 
-function createPopupConfirmClicked(){
+function createPopupConfirmClicked() {
     let projectName = document.getElementById("project-name").value;
     let xml = new XMLHttpRequest();
     let dataToSend = JSON.stringify({
-        "project_name": projectName,
+        project_name: projectName,
     });
     let onReadyFunc = () => {
-        if(xml.readyState == 4 && xml.status == 200){
+        if (xml.readyState == 4 && xml.status == 200) {
             let insertAt = document.getElementById("error-flash");
             let response = JSON.parse(xml.responseText);
-            if (response["status"] === "ok"){
+            if (response["status"] === "ok") {
                 insertAt.innerHTML = response["html"];
-            } else{
+            } else {
                 insertAt.innerHTML = response["html"];
             }
         }
     };
-    Helper.httpRequest(xml, "POST", window.location.href + "/createNewProject", onReadyFunc, dataToSend)
+    Helper.httpRequest(
+        xml,
+        "POST",
+        window.location.href + "/createNewProject",
+        onReadyFunc,
+        dataToSend
+    );
 }
 
 setInterval(() => {
     let xml = new XMLHttpRequest();
-    let allCombos = document.getElementsByName("filters")
+    let allCombos = document.getElementsByName("filters");
     let allFilters = [];
     allCombos.forEach((e) => {
-        allFilters.push(e.value)
-    })
+        allFilters.push(e.value);
+    });
     let dataToSend = JSON.stringify({
-        "type": `${allFilters}`,
+        type: `${allFilters}`,
     });
 
     let onReadyFunc = () => {
         if (xml.readyState == 4 && xml.status == 200) {
             let cardHtml = JSON.parse(xml.responseText);
-            let allProjects = document.getElementsByClassName("project-name")
+            let allProjects = document.getElementsByClassName("project-name");
             Array.from(allProjects).forEach((element) => {
-                let insertAt = document.getElementById(`card-container,${element.innerText}`);
+                let insertAt = document.getElementById(
+                    `card-container,${element.innerText}`
+                );
                 let totalValue = "";
                 Array.from(cardHtml[element.innerText]).forEach((value) => {
-                    totalValue += value
+                    totalValue += value;
                 });
                 insertAt.innerHTML = totalValue;
             });
         }
-    }
-    Helper.httpRequest(xml, "POST", "/authorised/dash/update", onReadyFunc, dataToSend);
+    };
+    Helper.httpRequest(
+        xml,
+        "POST",
+        "/authorised/dash/update",
+        onReadyFunc,
+        dataToSend
+    );
 }, 40000);
 
 setInterval(() => {

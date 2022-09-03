@@ -9,6 +9,7 @@ let saveChangesButton = document.getElementById("save-changes-button");
 saveChangesButton.addEventListener("click", saveChangesButtonClicked);
 
 window.onload = () => {
+    loadButtonWRTRoles();
     saveChangesButton.disabled = true;
     for(let i = 0; i < allRoleSelectors.length; ++i){
         for(let z=0; z < allRoleSelectors[i].length; ++z){
@@ -42,4 +43,27 @@ function saveChangesButtonClicked(){
         }
     }
     Helper.httpRequest(xml, "POST", window.location.href + "/updateUserRoles", onReadyFunc, dataToSend);
+}
+
+function loadButtonWRTRoles(){
+    let currentRoleDefinition;
+    let xml = new XMLHttpRequest();
+    let urlList = window.location.href.split('/')
+    let projectName = urlList[urlList.length - 1];
+    let dataToSend = JSON.stringify({
+        "project_name": `${projectName}`,
+    });
+    let onReadyFunc = () => {
+        if(xml.readyState == 4 && xml.status == 200){
+            currentRoleDefinition = JSON.parse(xml.responseText);
+            if (currentRoleDefinition['role_name'] === 'admin'){
+                saveChangesButton.disabled = true;
+            } else{
+                let insertAt = document.getElementById("save-btn-container");
+                insertAt.innerHTML = "PERMISSION DENIED";
+            }
+        }
+    }
+
+    Helper.httpRequest(xml, "POST", `/authorised/dash/main/${projectName}/getUserRoleDefinition`, onReadyFunc, dataToSend);
 }

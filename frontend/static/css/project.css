@@ -67,9 +67,9 @@ body {
     column-gap: 1.5%;
 }
 
-.column-container{
+.column-container {
     display: grid;
-    grid-template-rows: 0.01fr 1fr;
+    grid-template-rows: 0.01fr 0.01fr 1fr;
     row-gap: 10px;
 }
 
@@ -94,7 +94,7 @@ p[class^="not-sortable"] {
     border: 2px solid #F5C6CB;
 }
 
-.permission-denied-text{
+.permission-denied-text {
     margin-top: 10px;
     margin-bottom: 10px;
 }
@@ -113,7 +113,7 @@ p[class^="not-sortable"] {
     display: grid;
     grid-template-rows: max-content;
     grid-auto-flow: row;
-    grid-auto-rows: 21%;
+    grid-auto-rows: 25%;
     height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
@@ -198,4 +198,166 @@ p[class^="not-sortable"] {
     grid-column: 1/-1;
     margin: 2px;
     cursor: text;
+}
+
+button {
+    background-color: var(--column-background-colour);
+    color: var(--text-colour);
+    width: 100%;
+    padding: 6px;
+    font-size: 25px;
+    font-weight: bolder;
+    border-radius: 10px;
+    border: 4px solid var(--shadow-colour);
+    transition: box-shadow .2s, transform .2s;
+    font-family: 'Cascadia Code', sans-serif;
+
+    /* min-width: max-content;
+  max-height: 50px;
+  font-size: 15px;
+  padding: 0px 40px;
+  border-radius: 10px;
+  background-color: var(--column-background-colour);
+  transition: box-shadow .2s, transform .2s;
+  box-sizing: border-box;
+  line-height: 50px;
+  font-family: 'Cascadia Code', sans-serif;
+  color: var(--text-colour); */
+}
+
+button:hover {
+    box-shadow: rgba(100, 100, 111, 0.2) 9px 13px 2px 0px;
+    transform: translate(-10px, -5px);
+}
+
+button:active {
+    box-shadow: rgba(100, 100, 111, 0.2) 5px 7px 1px 0px;
+    transform: translate(-5px, -2px);
+}
+
+#overlay-add-card {
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 9;
+    position: absolute;
+    margin: 0px;
+    display: none;
+}
+
+#overlay-add-container {
+    overflow-y: auto;
+    min-width: min-content;
+    height: min-content;
+    max-height: 95%;
+    align-self: center;
+    width: 30%;
+    justify-self: center;
+    padding: 15px;
+    margin: 15px;
+    align-self: center;
+    background-color: var(--column-background-colour);
+    color: var(--text-colour);
+    border-radius: 10px;
+    z-index: 10;
+}
+
+.all-elements-add-overlay-wrapper {
+    display: grid;
+    grid-template-rows: repeat(5, 0.5fr);
+}
+
+#add-overlay-heading-container,
+#add-overlay-short-description-heading-container,
+#add-overlay-expected-behaviour-heading-container {
+    width: 100%;
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    align-self: center;
+    justify-self: center;
+    align-content: center;
+    justify-content: center;
+}
+
+#add-overlay-expected-behaviour-heading-container {
+    grid-template-rows: 0.24fr 1fr;
+}
+
+#add-overlay-steps-to-reproduce-heading-container {
+    width: 100%;
+    display: grid;
+    grid-auto-flow: row;
+    align-self: center;
+    justify-self: center;
+    grid-auto-rows: min-content;
+}
+
+#add-overlay-btn-input-container {
+    display: grid;
+    grid-template-columns: 1fr 0.25fr;
+    column-gap: 20px;
+    width: 100%;
+    align-content: center;
+    justify-content: center;
+}
+
+#add-overlay-steps-to-reproduce-heading {
+    width: 100%;
+    text-align: center;
+}
+
+input[type=text] {
+    height: fit-content;
+    padding: 10px;
+}
+
+#confirm-step {
+    width: max-content;
+    padding: 10px;
+    font-size: 15px;
+    font-weight: normal;
+}
+
+textarea {
+    width: 100%;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: #f8f8f8;
+    font-size: 16px;
+}
+
+#create-popup-confirm-create {
+    width: 100%;
+    margin-top: 35px;
+    display: grid;
+    justify-content: end;
+}
+
+#textarea-for-description-container {
+width: 100%;
+    border: 1px solid #999999;
+    margin: 5px 0;
+    padding: 3px;
+}
+
+.steps{
+    display: grid;
+    height: min-content;
+    padding-left: 5px;
+    padding-right: 5px;
+    width: 100%;
+    grid-template-columns: 1fr 0.005fr;
+    background-color: var(--shadow-colour);
+    border-radius: 5px;
+}
+
+.step-delete{
+    margin-top: 0px;
+    padding: 5px;
+    justify-self: start;
+    align-self: flex-start;
+    background-color: var(--column-background-colour);
+    cursor: pointer;
 }

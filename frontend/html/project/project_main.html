@@ -4,32 +4,82 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
 {% endblock %} {% block content %}
+<div class="overlay" id="overlay-add-card">
+    <div id="overlay-add-container">
+        <div class="all-elements-add-overlay-wrapper">
+            <div id="add-overlay-heading-container">
+                <p id="add-overlay-tag-heading">
+                    Enter the name of the tag
+                </p>
+                <input type="text">
+            </div>
+            <div id="add-overlay-short-description-heading-container">
+                <p id="add-overaly-short-description-heading">
+                    Enter a short description of the bug
+                </p>
+                <input type="text" name="short-description" id="short-description-overlay   ">
+            </div>
+            <div id="add-overlay-steps-to-reproduce-heading-container">
+                <p id="add-overlay-steps-to-reproduce-heading">
+                    Enter the steps to reproduce
+                </p>
+                <div id="add-overlay-btn-input-container">
+                    <input type="text" name="one-step" id="one-step-overlay">
+                    <button name="one-step" id="confirm-step">Add</button>
+                </div>
+                <div id="all-the-steps-container"></div>
+            </div>
+            <div id="add-overlay-expected-behaviour-heading-container">
+                <p id="add-overlay-expected-behaviour-heading">
+                    Describe the expected behaviour
+                </p>
+                <div id="textarea-for-description-container">
+                    <textarea name="expected-behaviour" id="expected-behaviour-overlay"></textarea>
+                </div>
+            </div>
+            <div id="create-popup-confirm-create">
+                <button id="confirm-create">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="content">
+    <div id="card-overlay-container"></div>
     <div class="columns">
         <div id="open-column-container" class="column-container">
-            <div class="not-sortable-permission-denied-container" id="permission-denied-container-open">
-
+            <div class="not-sortable-permission-denied-container" id="permission-denied-container-open"></div>
+            <div class="add-button-container" id="open-add-button-container">
+                <button class="add-card-button" id="open-add-card-button">
+                    +
+                </button>
             </div>
             <div id="open" class="sortable">
                 <p class="not-sortable-column-name">OPEN</p>
-                {% for value in data['open'] %} {{ card_macro(value, "open", loop.index)
-                }} {% endfor %}
-            </div>
-        </div>
-        <div id="in-progress-column-container" class="column-container">
-            <div class="not-sortable-permission-denied-container" id="permission-denied-container-in-progress">
-
-            </div>
-            <div id="in-progress" class="sortable">
-                <p class="not-sortable-column-name">IN PROGRESS</p>
-                {% for value in data['in-progress'] %} {{ card_macro(value, "in-progress",
+                {% for value in data['open'] %} {{ card_macro(value, "open",
                 loop.index) }} {% endfor %}
             </div>
         </div>
-        <div id="to-be-tested-column-container" class="column-container">
-            <div class="not-sortable-permission-denied-container" id="permission-denied-container-to-be-tested">
-
+        <div id="in-progress-column-container" class="column-container">
+            <div class="not-sortable-permission-denied-container" id="permission-denied-container-in-progress"></div>
+            <div class="add-button-container" id="in-progress-add-button-container">
+                <button class="add-card-button" id="in-progress-add-card-button">
+                    +
+                </button>
             </div>
+            <div id="in-progress" class="sortable">
+                <p class="not-sortable-column-name">IN PROGRESS</p>
+                {% for value in data['in-progress'] %} {{ card_macro(value,
+                "in-progress", loop.index) }} {% endfor %}
+            </div>
+        </div>
+        <div id="to-be-tested-column-container" class="column-container">
+            <div class="not-sortable-permission-denied-container" id="permission-denied-container-to-be-tested"></div>
+            <div class="add-button-container" id="to-be-tested-add-button-container">
+                <button class="add-card-button" id="to-be-tested-add-card-button">
+                    +
+                </button>
+            </div>
+
             <div id="to-be-tested" class="sortable">
                 <p class="not-sortable-column-name">TO BE TESTED</p>
                 {% for value in data['to-be-tested'] %} {{ card_macro(value,
@@ -37,9 +87,13 @@
             </div>
         </div>
         <div id="closed-column-container" class="column-container">
-            <div class="not-sortable-permission-denied-container" id="permission-denied-container-closed">
-
+            <div class="not-sortable-permission-denied-container" id="permission-denied-container-closed"></div>
+            <div class="add-button-container" id="closed-add-button-container">
+                <button class="add-card-button" id="closed-add-card-button">
+                    +
+                </button>
             </div>
+
             <div id="closed" class="sortable">
                 <p class="not-sortable-column-name">CLOSED</p>
                 {% for value in data['closed'] %} {{ card_macro(value, "close",

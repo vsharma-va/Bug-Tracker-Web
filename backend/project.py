@@ -144,8 +144,8 @@ def update_page(project_name):
         card_html_list = []
     return json.dumps(html)
 
-@bp.route('/main/<project_name>/loadoverlay')
-def on_click_overlay(project_name):
+@bp.route('/main/<project_name>/loadOverlay/<column_name>/<position>')
+def on_click_overlay(project_name, column_name, position):
     pass
 
 @bp.route('/main/<project_name>/getUserRoleDefinition', methods=['GET', 'POST'])
@@ -157,4 +157,5 @@ def get_user_role(project_name):
     project_id = helper.get_projectid_by_project_name(received_project_name)
     current_role = helper.get_users_current_role_in_project(project_id, session['user_id'])
     role_definition = helper.get_role_defintion(current_role, project_id)
+    role_definition['role_name'] = current_role
     return json.dumps(role_definition)

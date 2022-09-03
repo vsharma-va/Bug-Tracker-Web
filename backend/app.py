@@ -8,6 +8,10 @@ from flask_wtf.csrf import session
 import os
 from dotenv import load_dotenv
 
+'''
+    can integrate github api to show recent commits and changes
+'''
+
 load_dotenv()
 
 extra_dirs = [

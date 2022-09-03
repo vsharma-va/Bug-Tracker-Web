@@ -160,6 +160,15 @@ option {
     text-align-last: center;
 }
 
+#save-btn-container {
+    grid-column-start: 2;
+    grid-column-end: -1;
+    justify-self: center;
+    align-self: center;
+    height: 100%;
+    width: 100%;
+}
+
 #save-changes-button {
     background-color: var(--column-background-colour);
     color: var(--text-colour);
@@ -170,10 +179,6 @@ option {
     border: 4px solid var(--shadow-colour);
     transition: box-shadow .2s, transform .2s;
     font-family: 'Cascadia Code', sans-serif;
-    grid-column-start: 2;
-    grid-column-end: -1;
-    justify-self: center;
-    align-self: center;
 }
 
 #save-changes-button:hover:enabled {

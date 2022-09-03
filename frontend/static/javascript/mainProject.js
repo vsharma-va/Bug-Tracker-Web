@@ -12,8 +12,30 @@ let toBeTestedOriginalOrder;
 let closedOriginalOrder;
 
 let movePermissionDenied = [];
+const ALL_COLUMNS = ["open", "in-progress", "to-be-tested", "closed"];
 
-// defining all sortables
+let allAddCardBtns = document.getElementsByClassName("add-card-button");
+Array.from(allAddCardBtns).forEach((element) => {
+    element.addEventListener("click", openAddOverlay);
+});
+
+document
+    .getElementById("overlay-add-card")
+    .addEventListener("click", outsideAddOverlayClicked);
+
+document
+    .getElementById("confirm-step")
+    .addEventListener("click", confirmStepClicked);
+
+function createStepsToReproduce(indexStartingFromZero, valueToInsert) {
+    return `<div id='step-${indexStartingFromZero}-container' class='steps'>
+        <p id='step-${indexStartingFromZero}'>${
+        indexStartingFromZero + 1
+    }. ${valueToInsert}</p>
+        <p id='step-${indexStartingFromZero}-delete' class='step-delete'>X</p>
+        </div>`;
+}
+
 $(document).ready(loadPageWRTUserRole());
 
 /* 
@@ -30,11 +52,13 @@ function onReceiveRemove(event, ui) {
     let columnName = event.target.id.toString();
     let sorted = $(`#${columnName}`).sortable("serialize");
     // console.log($(`#${columnName}`).sortable("toArray", {attribute: "data-id"}));
-    let idInOrder = $(`#${columnName}`).sortable("toArray", { attribute: "data-id" });
+    let idInOrder = $(`#${columnName}`).sortable("toArray", {
+        attribute: "data-id",
+    });
     idInOrder.splice(0, 1);
 
     // you can find out about all the properties by printing ui.item to the console
-    let allChildren = ui.item['0'].children;
+    let allChildren = ui.item["0"].children;
     // console.log(ui.item['0'].dataset['id']);
     // console.log(event.target.id);
     // console.log(allChildren.tag.textContent);
@@ -71,17 +95,20 @@ function onReceiveRemove(event, ui) {
     let xml = new XMLHttpRequest();
     // new_order and original_order are the results of sortable("serialize")
     let dataToSend = JSON.stringify({
-        "id": ui.item["0"].dataset["id"].toString(),
-        "id_in_order": idInOrder.toString(),
-        "tag": allChildren.tag.textContent,
-        "tag_color": allChildren.tag.style.cssText.split(":")[1].replaceAll(";", "").trim(),
-        "column": allChildren.column.textContent,
-        "description": allChildren.description.textContent,
-        "by": allChildren.by.textContent,
-        "received_by": event.target.id,
-        "new_order": sorted,
-        "original_order": originalOrder,
-        "event_type": eventType,
+        id: ui.item["0"].dataset["id"].toString(),
+        id_in_order: idInOrder.toString(),
+        tag: allChildren.tag.textContent,
+        tag_color: allChildren.tag.style.cssText
+            .split(":")[1]
+            .replaceAll(";", "")
+            .trim(),
+        column: allChildren.column.textContent,
+        description: allChildren.description.textContent,
+        by: allChildren.by.textContent,
+        received_by: event.target.id,
+        new_order: sorted,
+        original_order: originalOrder,
+        event_type: eventType,
     });
     /*
         plans to fix drag and drop wrt database
@@ -95,10 +122,9 @@ function onReceiveRemove(event, ui) {
                 updatePage();
             }
         }
-    }
-    let url = window.location.href + `/on/${eventType}`
+    };
+    let url = window.location.href + `/on/${eventType}`;
     Helper.httpRequest(xml, "POST", url, onReadyFunc, dataToSend);
-
 }
 
 function updatePage() {
@@ -108,22 +134,35 @@ function updatePage() {
         if (xml.readyState == 4 && xml.status == 200) {
             // cardHtml is a dictionary sent from flask {'column_name': datainlist}
             let cardHtml = JSON.parse(xml.responseText);
-            let allColumns = document.getElementsByClassName("sortable ui-sortable");
+            let allColumns = document.getElementsByClassName(
+                "sortable ui-sortable"
+            );
             Array.from(allColumns).forEach((element) => {
                 let totalValue = "";
                 cardHtml[element.id].forEach((value) => {
                     totalValue += value;
                 });
-                if (movePermissionDenied.includes(element.id.toString())){
-                    totalValue = `<p class='not-sortable-column-name'>${element.id.toUpperCase().replaceAll("-", " ")}</p> \n` + totalValue;
-                } else{
-                    totalValue = `<p class='not-sortable-column-name'>${element.id.toUpperCase().replaceAll("-", " ")}</p> \n` + totalValue;
+                if (movePermissionDenied.includes(element.id.toString())) {
+                    totalValue =
+                        `<p class='not-sortable-column-name'>${element.id
+                            .toUpperCase()
+                            .replaceAll("-", " ")}</p> \n` + totalValue;
+                } else {
+                    totalValue =
+                        `<p class='not-sortable-column-name'>${element.id
+                            .toUpperCase()
+                            .replaceAll("-", " ")}</p> \n` + totalValue;
                 }
                 element.innerHTML = totalValue;
             });
         }
-    }
-    Helper.httpRequest(xml, "GET", `${window.location.href}/update`, onReadyFunc);
+    };
+    Helper.httpRequest(
+        xml,
+        "GET",
+        `${window.location.href}/update`,
+        onReadyFunc
+    );
 }
 
 function updateOriginalOrders(columnName) {
@@ -155,95 +194,171 @@ Array.from(allCards).forEach((element) => {
     element.addEventListener("click", cardOnClick, false);
 });
 
-
 function cardOnClick(event) {
     let clickedElement = event.target;
     let columnAndPosition = clickedElement.id.split("_");
-    let xml = new XMLHttpRequest()
-    Helper.httpRequest(xml, "GET", window.location.href + "loadoverlay");
+    if (ALL_COLUMNS.includes(columnAndPosition[0])) {
+        let xml = new XMLHttpRequest();
+        Helper.httpRequest(
+            xml,
+            "GET",
+            window.location.href +
+                `/loadOverlay/${columnAndPosition[0]}/${columnAndPosition[1]}`
+        );
+    }
 }
 
 function loadPageWRTUserRole() {
     let currentRoleDefinition;
     let xml = new XMLHttpRequest();
-    let urlList = window.location.href.split('/');
+    let urlList = window.location.href.split("/");
     let projectName = urlList[urlList.length - 1];
     let dataToSend = JSON.stringify({
-        "project_name": `${projectName}`
+        project_name: `${projectName}`,
     });
     let onReadyFunc = () => {
         if (xml.readyState == 4 && xml.status == 200) {
             currentRoleDefinition = JSON.parse(xml.responseText);
+            console.log(currentRoleDefinition);
             createSortables(currentRoleDefinition);
         }
-    }
-    Helper.httpRequest(xml, "POST", window.location.href + '/getUserRoleDefinition', onReadyFunc, dataToSend);
+    };
+    Helper.httpRequest(
+        xml,
+        "POST",
+        window.location.href + "/getUserRoleDefinition",
+        onReadyFunc,
+        dataToSend
+    );
 }
 
-function createSortables(currentRoleDefinition){
-    if (currentRoleDefinition['can_move_to_and_from'].includes("open")) {
-        opn = $("#open").sortable({
-            connectWith: ".sortable",
-            containment: ".columns",
-            cursor: "move",
-            receive: onReceiveRemove,
-            remove: onReceiveRemove,
-            start: updateOriginalOrders,
-            cancel: "p[class^='not-sortable-'], div[class^='not-sortable-']",
-        }).disableSelection();
-    }else{
+function createSortables(currentRoleDefinition) {
+    if (currentRoleDefinition["can_move_to_and_from"].includes("open")) {
+        opn = $("#open")
+            .sortable({
+                connectWith: ".sortable",
+                containment: ".columns",
+                cursor: "move",
+                receive: onReceiveRemove,
+                remove: onReceiveRemove,
+                start: updateOriginalOrders,
+                cancel: "p[class^='not-sortable-'], div[class^='not-sortable-']",
+            })
+            .disableSelection();
+    } else {
         movePermissionDenied.push("open");
-        let container = document.getElementById("permission-denied-container-open");
-        container.innerHTML = "<p class='permission-denied-text'>PERMISSION DENIED</p>"
+        let container = document.getElementById(
+            "permission-denied-container-open"
+        );
+        container.innerHTML =
+            "<p class='permission-denied-text'>PERMISSION DENIED</p>";
     }
 
-    if (currentRoleDefinition['can_move_to_and_from'].includes("in-progress")) {
-        inProgress = $("#in-progress").sortable({
-            connectWith: ".sortable",
-            containment: ".columns",
-            cursor: "move",
-            receive: onReceiveRemove,
-            remove: onReceiveRemove,
-            start: updateOriginalOrders,
-            cancel: "p[class^='not-sortable-'], div[class^='not-sortable-']",
-        }).disableSelection();
-    }else{
+    if (currentRoleDefinition["can_move_to_and_from"].includes("in-progress")) {
+        inProgress = $("#in-progress")
+            .sortable({
+                connectWith: ".sortable",
+                containment: ".columns",
+                cursor: "move",
+                receive: onReceiveRemove,
+                remove: onReceiveRemove,
+                start: updateOriginalOrders,
+                cancel: "p[class^='not-sortable-'], div[class^='not-sortable-']",
+            })
+            .disableSelection();
+    } else {
         movePermissionDenied.push("in-progress");
-        let container = document.getElementById("permission-denied-container-in-progress");
-        container.innerHTML = "<p class='permission-denied-text'>PERMISSION DENIED</p>"
+        let container = document.getElementById(
+            "permission-denied-container-in-progress"
+        );
+        container.innerHTML =
+            "<p class='permission-denied-text'>PERMISSION DENIED</p>";
     }
 
-    if (currentRoleDefinition['can_move_to_and_from'].includes("to-be-tested")) {
-        toBeTested = $("#to-be-tested").sortable({
-            connectWith: ".sortable",
-            containment: ".columns",
-            cursor: "move",
-            receive: onReceiveRemove,
-            remove: onReceiveRemove,
-            start: updateOriginalOrders,
-            cancel: "p[class^='not-sortable-'], div[class^='not-sortable-']",
-        }).disableSelection();
-    }else{
+    if (
+        currentRoleDefinition["can_move_to_and_from"].includes("to-be-tested")
+    ) {
+        toBeTested = $("#to-be-tested")
+            .sortable({
+                connectWith: ".sortable",
+                containment: ".columns",
+                cursor: "move",
+                receive: onReceiveRemove,
+                remove: onReceiveRemove,
+                start: updateOriginalOrders,
+                cancel: "p[class^='not-sortable-'], div[class^='not-sortable-']",
+            })
+            .disableSelection();
+    } else {
         movePermissionDenied.push("to-be-tested");
-        let container = document.getElementById("permission-denied-container-to-be-tested");
-        container.innerHTML = "<p class='permission-denied-text'>PERMISSION DENIED</p>"
+        let container = document.getElementById(
+            "permission-denied-container-to-be-tested"
+        );
+        container.innerHTML =
+            "<p class='permission-denied-text'>PERMISSION DENIED</p>";
     }
 
-    if (currentRoleDefinition['can_move_to_and_from'].includes("closed")) {
-        clos = $("#closed").sortable({
-            connectWith: ".sortable",
-            containment: ".columns",
-            cursor: "move",
-            receive: onReceiveRemove,
-            remove: onReceiveRemove,
-            start: updateOriginalOrders,
-            cancel: "p[class^='not-sortable-'], div[class^='not-sortable-']",
-        }).disableSelection();
-    } else{
+    if (currentRoleDefinition["can_move_to_and_from"].includes("closed")) {
+        clos = $("#closed")
+            .sortable({
+                connectWith: ".sortable",
+                containment: ".columns",
+                cursor: "move",
+                receive: onReceiveRemove,
+                remove: onReceiveRemove,
+                start: updateOriginalOrders,
+                cancel: "p[class^='not-sortable-'], div[class^='not-sortable-']",
+            })
+            .disableSelection();
+    } else {
         movePermissionDenied.push("closed");
-        let container = document.getElementById("permission-denied-container-closed");
-        container.innerHTML = "<p class='permission-denied-text'>PERMISSION DENIED</p>"
+        let container = document.getElementById(
+            "permission-denied-container-closed"
+        );
+        container.innerHTML =
+            "<p class='permission-denied-text'>PERMISSION DENIED</p>";
     }
 
     updateOriginalOrders();
+}
+
+function openAddOverlay(event) {
+    document.getElementById("overlay-add-card").style.display = "inline-block";
+}
+
+function outsideAddOverlayClicked(event) {
+    if (event.target.id == "overlay-add-card") {
+        event.target.style.display = "none";
+    }
+}
+
+function confirmStepClicked() {
+    let inputBoxValue = document.getElementById("one-step-overlay").value;
+    let insertAt = document.getElementById("all-the-steps-container");
+    let numberOfElements = insertAt.childElementCount;
+    insertAt.innerHTML += createStepsToReproduce(
+        numberOfElements,
+        inputBoxValue
+    );
+    let allStepDelete = document.getElementsByClassName("step-delete");
+    Array.from(allStepDelete).forEach((element) => {
+        element.addEventListener("click", stepDeleteClicked);
+    });
+}
+
+function stepDeleteClicked(event) {
+    let deleteElement = document.getElementById(
+        event.target.id.replace("delete", "container")
+    );
+    deleteElement.remove();
+    let allStepsContainer = document.getElementById("all-the-steps-container");
+    let counter = 0;
+    Array.from(allStepsContainer.children).forEach((element) => {
+        element.id = `step-${counter + 1}-container`;
+        element.children[0].id = `step-${counter + 1}`;
+        element.children[1].id = `step-${counter + 1}-delete`;
+        element.children[0].innerHTML =
+            `${counter + 1}. ` + element.children[0].innerHTML.split(" ")[1];
+        counter += 1;
+    });
 }
